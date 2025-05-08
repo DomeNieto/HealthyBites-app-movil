@@ -68,16 +68,17 @@ const RegisterModal = ({ onClose }: { onClose: () => void }) => {
       };
       console.log(JSON.stringify(newUser));
       const status = await registerNewUser(newUser);
-      console.log(status)
+      console.log(status);
       if (status === 200 || status === 201) {
         setVisible(false);
         onClose();
-        router.replace("/(drawer)/home");
+        router.replace("../login");
       } else {
         Alert.alert("Error", `Registro fallido (status ${status})`);
       }
     }
   };
+  
   
 
   const renderContent = () => {

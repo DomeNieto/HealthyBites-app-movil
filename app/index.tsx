@@ -3,17 +3,36 @@ import { View, Text, StyleSheet, Button, Pressable } from "react-native";
 import { Link } from "expo-router";
 import { loadFonts } from "../assets/fonts/fonts";
 import ModalRegistro from "./registry";
+import asyncStorageService from "../services/async-storage-service";
+import { router } from "expo-router";
 
 export default function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
-  const [showModal, setShowModal] = useState(false); 
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    loadFonts().then(() => setFontsLoaded(true));
+    loadFonts()
+      .then(() => {
+        setFontsLoaded(true);
+        return asyncStorageService.getUser("user-token");
+      })
+      .then((token) => {
+        if (token) {
+          router.replace("/(drawer)/home");
+        }
+      })
+      .catch((err) => {
+        console.error("Error cargando fuentes o token:", err);
+      });
   }, []);
 
-  if (!fontsLoaded) return null;
-
+  if (!fontsLoaded) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text>Cargando...</Text>
+      </View>
+    );
+  }
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Bienvenido a</Text>
@@ -30,7 +49,7 @@ export default function App() {
         <Text style={styles.buttonText}>Comienza Ahora</Text>
       </Pressable>
 
-      <Link href="../login" style={styles.link}>
+      <Link href="./login" style={styles.link}>
         Ya Tengo Cuenta
       </Link>
 

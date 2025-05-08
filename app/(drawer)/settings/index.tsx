@@ -70,7 +70,7 @@ const SettingsPage = () => {
         onChangeText={(txt) => setData((prev) => ({ ...prev, name: txt }))}
         placeholder="Usuario"
       />
-      <Text style={styles.label}>Altura en metros</Text>
+      <Text style={styles.label}>Altura en centímetros</Text>
 
       <TextInput
         style={styles.input}
@@ -86,7 +86,7 @@ const SettingsPage = () => {
         style={styles.input}
         value={data.weight.toString()}
         onChangeText={(txt) =>
-          setData((prev) => ({ ...prev, weight: parseFloat(txt) }))
+          setData((prev) => ({ ...prev, weight: txt ? parseFloat(txt) : 0 }))
         }
         placeholder="56"
         keyboardType="number-pad"

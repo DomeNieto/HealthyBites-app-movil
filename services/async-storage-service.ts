@@ -4,20 +4,15 @@ const KEYS = {
   userToken: 'user-token'
 }
 
-const getUser = async (key: string): Promise<string | null> => {
+const getUser = async  (key: string): Promise<string | null> => {
   try {
-    const stored = await AsyncStorage.getItem(key);
-    if (!stored) return null;
-    if (stored.startsWith('"') && stored.endsWith('"')) {
-      return stored.slice(1, -1);
-    }
-    return stored;
+    const token = await AsyncStorage.getItem(key);
+    return token
   } catch (e) {
     console.log(`AsyncStorage Error: ${e}`);
-    return null;
   }
-};
-
+  return null;
+}
 
 async function saveUser<T>(key: string, value: T): Promise<void | null | undefined> {
   try {

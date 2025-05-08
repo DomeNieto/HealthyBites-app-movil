@@ -74,11 +74,60 @@ const getUserByEmail = async (email: string) => {
   }
 };
 
+const updateUser = async (updatedUserData: userRegister): Promise<number> => {
+  try {
+    const email = await asyncStorageService.getUser("user-email");
+    
+
+    if (!email) {
+      console.error("No se encontró el email del usuario en el almacenamiento.");
+      return 400;
+    }
+
+    const existingUser = await userService.getUserByEmail(email);
+    if (!existingUser || !existingUser.data?.id) {
+      console.error("Usuario no encontrado por email.");
+      return 404;
+    }
+
+    const userId = existingUser.data.id;
+
+    const bodyToSend = {
+      name: updatedUserData.name,
+      email: updatedUserData.email,
+      password: updatedUserData.password,
+      infoUser: {
+        height: updatedUserData.infoUser.height,
+        weight: updatedUserData.infoUser.weight,
+        activityLevel: updatedUserData.infoUser.activityLevel,
+      },
+    };
+
+    const response = await fetch(`${API_URL}/${userId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(bodyToSend),
+    });
+
+    console.log("Respuesta del update:", response.status);
+    await asyncStorageService.deleteTokenUser("user-token");
+    await asyncStorageService.deleteTokenUser("user-email");
+    return response.status;
+  } catch (err: any) {
+    console.error("Error al actualizar usuario:", err.message || err);
+    return 500;
+  }
+};
+
+
 
 const userService = {
   registerNewUser,
   registerLogin,
   getUserByEmail,
+  updateUser
 };
 
 export default userService;

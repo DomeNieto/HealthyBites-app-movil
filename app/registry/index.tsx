@@ -4,7 +4,11 @@ import { Picker } from "@react-native-picker/picker";
 import { useRouter } from "expo-router";
 import { registerNewUser } from "../../services/user-service";
 
-const RegisterModal = ({ onClose }: { onClose: () => void }) => {
+type RegisterModalProps = {
+  onClose: () => void;
+};
+
+const RegisterModal = ({ onClose }: RegisterModalProps) => {
   const [visible, setVisible] = useState(true);
   const [step, setStep] = useState("name");
   const [data, setData] = useState({
@@ -69,7 +73,7 @@ const RegisterModal = ({ onClose }: { onClose: () => void }) => {
       console.log(JSON.stringify(newUser));
       const status = await registerNewUser(newUser);
       console.log(status);
-      if (status === 200 || status === 201) {
+      if (status === 201) {
         setVisible(false);
         onClose();
         router.replace("../login");
@@ -180,6 +184,16 @@ const RegisterModal = ({ onClose }: { onClose: () => void }) => {
     <Modal visible={visible} transparent animationType="slide">
       <View style={styles.overlay}>
         <View style={styles.modalContent}>
+          <Pressable
+              style={styles.closeIcon}
+              onPress={() => {
+                setVisible(false);
+                router.replace('/');
+              }}
+          >
+              <Text style={styles.closeText}>✕</Text>
+          </Pressable>
+          
           {renderContent()}
           <Pressable style={styles.button} onPress={handleNext}>
             <Text style={styles.buttonText}>
@@ -192,6 +206,16 @@ const RegisterModal = ({ onClose }: { onClose: () => void }) => {
   );
 };
 const styles = StyleSheet.create({
+  closeIcon: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 1,
+  },
+  closeText: {
+    fontSize: 18,
+    color: '#000',
+  },
   label: {
     fontSize: 24,
     fontFamily: "InstrumentSans-Regular",

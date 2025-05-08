@@ -1,63 +1,60 @@
-import { createDrawerNavigator } from '@react-navigation/drawer';
-import HomePage from './home';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import Entypo from '@expo/vector-icons/Entypo';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import RececipesPage from './recipes';
-import SettingsPage from './settings';
-import LogoutScreen from './logout';
-import { Text } from 'react-native';
+import { createDrawerNavigator } from "@react-navigation/drawer";
+import HomePage from "./home";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import Entypo from "@expo/vector-icons/Entypo";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import RececipesPage from "./recipes";
+import SettingsPage from "./settings";
+import LogoutScreen from "./logout";
+import { Text } from "react-native";
 
 const Drawer = createDrawerNavigator();
 
 function MyDrawer() {
   return (
     <Drawer.Navigator>
-      <Drawer.Screen 
-        name="Home" 
-        component={HomePage} 
+      <Drawer.Screen
+        name="Home"
+        component={HomePage}
         options={{
-          headerTitleAlign: 'left',        
-          headerTitle: () => (
-            <Text style={{ fontSize: 17, fontWeight: 'bold', color: 'black' }}>
-              Hola, Usuario
-            </Text>
+          headerTitleAlign: "left",
+          headerTintColor: "black",
+          headerStyle: { backgroundColor: "#EDDCFF" },
+          drawerIcon: () => (
+            <MaterialIcons name="home-filled" size={24} color="black" />
           ),
-          headerTintColor: 'black',         
-          headerStyle: {
-            backgroundColor: '#EDDCFF',     
-          },
-          drawerIcon: () => <MaterialIcons name="home-filled" size={24} color="black" />,
         }}
       />
-      <Drawer.Screen 
-        name="Recetas" 
-        component={RececipesPage} 
+      <Drawer.Screen
+        name="Recetas"
+        component={RececipesPage}
         options={{
-          headerTintColor: 'black',        
-          headerTitleAlign: 'left',        
+          headerTintColor: "black",
+          headerTitleAlign: "left",
           headerStyle: {
-            backgroundColor: '#EDDCFF',   
+            backgroundColor: "#EDDCFF",
           },
           drawerIcon: () => <Entypo name="bowl" size={24} color="black" />,
         }}
       />
-      <Drawer.Screen 
-        name="Ajustes" 
-        component={SettingsPage} 
+      <Drawer.Screen
+        name="Ajustes"
+        component={SettingsPage}
         options={{
-          title: 'Ajustes de Perfil',
-          headerTintColor: 'black',         
-          headerTitleAlign: 'left',         
+          title: "Ajustes de Perfil",
+          headerTintColor: "black",
+          headerTitleAlign: "left",
           headerStyle: {
-            backgroundColor: '#EDDCFF',     
+            backgroundColor: "#EDDCFF",
           },
-          drawerIcon: () => <MaterialIcons name="home-filled" size={24} color="black" />,
+          drawerIcon: () => (
+            <MaterialIcons name="home-filled" size={24} color="black" />
+          ),
         }}
-        />
-      <Drawer.Screen 
-        name="Cierre de Sesión"  
-        component={LogoutScreen} 
+      />
+      <Drawer.Screen
+        name="Cierre de Sesión"
+        component={LogoutScreen}
         options={{
           headerShown: false,
           drawerIcon: () => <Ionicons name="exit" size={24} color="black" />,
@@ -67,4 +64,4 @@ function MyDrawer() {
   );
 }
 
-export default MyDrawer
+export default MyDrawer;

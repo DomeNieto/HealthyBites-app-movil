@@ -62,8 +62,5 @@ Una vez que las dependencias estén instaladas, puedes iniciar la aplicación co
 ```
 npm start
 ```
-Claro, aquí tienes una versión reescrita:
-
----
 
 Escanea el código QR que aparece al ejecutar la aplicación con tu dispositivo móvil. Asegúrate de que tanto tu dispositivo como tu ordenador estén conectados a la misma red y de tener instalada la aplicación Expo Go para garantizar un funcionamiento sin problemas. Además, verifica que la API esté en funcionamiento para que la aplicación opere correctamente.

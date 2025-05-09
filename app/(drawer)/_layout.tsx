@@ -7,6 +7,9 @@ import RececipesPage from "./recipes";
 import SettingsPage from "./settings";
 import LogoutScreen from "./logout";
 import { Text } from "react-native";
+import RecipesPage from "./recipes";
+import NewRecipe from "./newRecipe";
+import AddIngredient from "./addIngredient";
 
 const Drawer = createDrawerNavigator();
 
@@ -60,6 +63,34 @@ function MyDrawer() {
           drawerIcon: () => <Ionicons name="exit" size={24} color="black" />,
         }}
       />
+      
+       <Drawer.Screen 
+        name="NewRecipe" 
+        component={NewRecipe}
+        options={{
+          drawerItemStyle: { display: 'none' }, 
+          headerTintColor: "black",
+          headerTitleAlign: "left",
+          headerStyle: {
+            backgroundColor: "#EDDCFF",
+          },
+        headerTitle: "Recetas",
+        }}
+      />
+       <Drawer.Screen 
+        name="addIngredient" 
+        component={AddIngredient}
+        options={{
+          drawerItemStyle: { display: 'none' }, 
+          headerTintColor: "black",
+          headerTitleAlign: "left",
+          headerStyle: {
+            backgroundColor: "#EDDCFF",
+          },
+        headerTitle: "Recetas",
+        }}
+      />
+      
     </Drawer.Navigator>
   );
 }

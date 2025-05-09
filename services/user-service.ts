@@ -45,7 +45,10 @@ const registerLogin = async (data: loginInfo) => {
       password: data.password,
     });
     if (response.status == 200) {
-      await asyncStorageService.saveUser("user-token", response.data?.accessToken);
+      await asyncStorageService.saveUser(
+        "user-token",
+        response.data?.accessToken
+      );
       await asyncStorageService.saveUser("user-email", data.email);
       return response.status;
     } else {
@@ -74,23 +77,26 @@ const getUserByEmail = async (email: string) => {
   }
 };
 
+const getInfoUser = async () => {
+  const email = await asyncStorageService.getUser("user-email");
+
+  if (!email) {
+    console.error("No se encontró el email del usuario en el almacenamiento.");
+    return null;
+  }
+
+  const existingUser = await userService.getUserByEmail(email);
+  if (!existingUser || !existingUser.data?.id) {
+    console.error("Usuario no encontrado por email.");
+    return null;
+  }
+  return existingUser.data;
+};
+
 const updateUser = async (updatedUserData: userRegister): Promise<number> => {
   try {
-    const email = await asyncStorageService.getUser("user-email");
-    
-
-    if (!email) {
-      console.error("No se encontró el email del usuario en el almacenamiento.");
-      return 400;
-    }
-
-    const existingUser = await userService.getUserByEmail(email);
-    if (!existingUser || !existingUser.data?.id) {
-      console.error("Usuario no encontrado por email.");
-      return 404;
-    }
-
-    const userId = existingUser.data.id;
+    const user = await getInfoUser();
+    const userId = user.data.id;
 
     const bodyToSend = {
       name: updatedUserData.name,
@@ -121,13 +127,12 @@ const updateUser = async (updatedUserData: userRegister): Promise<number> => {
   }
 };
 
-
-
 const userService = {
   registerNewUser,
   registerLogin,
   getUserByEmail,
-  updateUser
+  updateUser,
+  getInfoUser
 };
 
 export default userService;

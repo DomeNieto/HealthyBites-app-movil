@@ -1,66 +1,84 @@
-# HealthyBites-app-movil
+# HealthyBites-app-mobile
 
-HealthyBites es una aplicación móvil diseñada para ayudarte a gestionar tus recetas, seguir un plan de alimentación y controlar tus calorías.
+**HealthyBites** is a mobile application designed to help you manage your recipes, follow a meal plan, and track your calorie intake.
 
-## Requisitos previos
+## Prerequisites
 
-Antes de instalar y ejecutar la aplicación, asegúrate de tener instalados los siguientes programas en tu máquina:
+Before installing and running the app, make sure you have the following tools installed on your machine:
 
-- [Node.js](https://nodejs.org/) (versión LTS recomendada)
-- Un dispositivo físico para probar la aplicación con la aplicación de Expo Go instalada.
+- [Node.js](https://nodejs.org/) (LTS version recommended)
+- A physical device to test the application with the **Expo Go** app installed.
 
-## Instalación
+## Installation
 
-### 1. Clonar el repositorio
+### 1. Clone the Repository
 
-Primero, clona el repositorio en tu máquina local. Abre una terminal y ejecuta el siguiente comando:
-```
+First, clone the repository to your local machine. Open a terminal and run the following command:
+
+```bash
 git clone https://github.com/DomeNieto/HealthyBites-app-movil.git
-```
+````
 
-### 2. Instalar dependencias
-Navega al directorio del proyecto recién clonado y ejecuta el siguiente comando para instalar todas las dependencias necesarias:
+### 2. Install Dependencies
 
-```
+Navigate to the project directory and run the following command to install all necessary dependencies:
+
+```bash
 cd HealthyBites-app-movil
 npm install
 ```
-Asegúrate de instalar las dependencias adicionales necesarias para el funcionamiento de la aplicación:
 
-- **Axios** (para hacer peticiones HTTP):
+Make sure to also install the additional dependencies required for the app to function properly:
 
+* **Axios** (for making HTTP requests):
+
+```bash
 npm install axios
-
-- **AsyncStorage**:
-
-npm install @react-native-async-storage/async-storage
-
-- **React Navigation**
-
-npm install @react-navigation/native
-
-- **Expo Router**
-
-npm install expo-router
-
-- **React Native Toast Message** (para mostrar mensajes tipo toast):
-  
-npm install react-native-toast-message
-
-- **React Native Picker** (para seleccionar elementos de una lista desplegable):
-
-npm install @react-native-picker/picker
-
-- **React Native Vector Icons** (para iconos vectoriales):
-  
-npm install react-native-vector-icons
-
-
-### 4. Iniciar la aplicación
-
-Una vez que las dependencias estén instaladas, puedes iniciar la aplicación con Expo. Para iniciar la aplicación en modo de desarrollo, ejecuta:
 ```
+
+* **AsyncStorage**:
+
+```bash
+npm install @react-native-async-storage/async-storage
+```
+
+* **React Navigation**:
+
+```bash
+npm install @react-navigation/native
+```
+
+* **Expo Router**:
+
+```bash
+npm install expo-router
+```
+
+* **React Native Toast Message** (for toast-style notifications):
+
+```bash
+npm install react-native-toast-message
+```
+
+* **React Native Picker** (for dropdown list selections):
+
+```bash
+npm install @react-native-picker/picker
+```
+
+* **React Native Vector Icons** (for vector icons):
+
+```bash
+npm install react-native-vector-icons
+```
+
+### 4. Start the Application
+
+Once all dependencies are installed, you can start the application using Expo. To start the app in development mode, run:
+
+```bash
 npm start
 ```
 
-Escanea el código QR que aparece al ejecutar la aplicación con tu dispositivo móvil. Asegúrate de que tanto tu dispositivo como tu ordenador estén conectados a la misma red y de tener instalada la aplicación Expo Go para garantizar un funcionamiento sin problemas. Además, verifica que la API esté en funcionamiento para que la aplicación opere correctamente.
+Scan the QR code that appears with your mobile device. Make sure that both your device and your computer are connected to the same network, and that the **Expo Go** app is installed on your phone to ensure everything works smoothly. Also, make sure the API is up and running so the application can work correctly.
+

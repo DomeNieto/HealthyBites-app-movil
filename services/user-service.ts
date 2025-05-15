@@ -1,5 +1,5 @@
 import axios from "axios";
-import { loginInfo } from "../types/login-info";
+import { loginInfo, LoginResponse } from "../types/login-info";
 import { userRegister } from "../types/user-register";
 import asyncStorageService from "./async-storage-service";
 
@@ -16,6 +16,8 @@ export const registerNewUser = async (data: userRegister): Promise<number> => {
         height: data.infoUser.height,
         weight: data.infoUser.weight,
         activityLevel: data.infoUser.activityLevel,
+        age: data.infoUser.age,
+        sex: data.infoUser.sex
       },
     };
 
@@ -40,7 +42,7 @@ export const registerNewUser = async (data: userRegister): Promise<number> => {
 
 const registerLogin = async (data: loginInfo) => {
   try {
-    const response = await axios.post(API_URL_LOGIN, {
+    const response = await axios.post<LoginResponse>(API_URL_LOGIN, {
       email: data.email,
       password: data.password,
     });
@@ -95,8 +97,7 @@ const getInfoUser = async () => {
 
 const updateUser = async (updatedUserData: userRegister): Promise<number> => {
   try {
-    const user = await getInfoUser();
-    const userId = user.data.id;
+    const userId = (await userService.getInfoUser()).id;
 
     const bodyToSend = {
       name: updatedUserData.name,

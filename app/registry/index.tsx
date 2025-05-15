@@ -18,6 +18,8 @@ const RegisterModal = ({ onClose }: RegisterModalProps) => {
     activityLevel: "",
     email: "",
     password: "",
+    age: 0,
+    sex: "",
   });
   const [repeatPassword, setRepeatPassword] = useState("");
 
@@ -28,7 +30,7 @@ const RegisterModal = ({ onClose }: RegisterModalProps) => {
       Alert.alert("Campo vacío", "Por favor, complete este campo antes de continuar");
       return;
     }
-  
+
     if (step === "name") {
       setStep("weight");
     } else if (step === "weight") {
@@ -36,6 +38,10 @@ const RegisterModal = ({ onClose }: RegisterModalProps) => {
     } else if (step === "height") {
       setStep("activityLevel");
     } else if (step === "activityLevel") {
+      setStep("age");
+    } else if (step === "age") {
+      setStep("sex");
+    } else if (step === "sex") {
       setStep("email");
     } else if (step === "email") {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -49,17 +55,13 @@ const RegisterModal = ({ onClose }: RegisterModalProps) => {
         Alert.alert("Error", "Contraseñas no coinciden.");
         return;
       }
-  
-      const passwordRegex =
-        /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+
+      const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=\[\]{};':"\\|,.<>\/?]).{8,}$/;
       if (!passwordRegex.test(data.password)) {
-        Alert.alert(
-          "Contraseña débil",
-          "La contraseña debe tener al menos 8 caracteres e incluir una letra mayúscula, un número y un carácter especial"
-        );
+        Alert.alert("Contraseña débil", "La contraseña debe tener al menos 8 caracteres e incluir una letra mayúscula, un número y un carácter especial");
         return;
       }
-  
+
       const newUser = {
         name: data.name,
         email: data.email,
@@ -68,8 +70,11 @@ const RegisterModal = ({ onClose }: RegisterModalProps) => {
           height: data.height,
           weight: data.weight,
           activityLevel: data.activityLevel,
+          age: data.age,
+          sex: data.sex,
         },
       };
+
       console.log(JSON.stringify(newUser));
       const status = await registerNewUser(newUser);
       console.log(status);
@@ -82,8 +87,6 @@ const RegisterModal = ({ onClose }: RegisterModalProps) => {
       }
     }
   };
-  
-  
 
   const renderContent = () => {
     switch (step) {
@@ -91,17 +94,12 @@ const RegisterModal = ({ onClose }: RegisterModalProps) => {
         return (
           <>
             <Text style={styles.label}>... Cuál es tu nombre?</Text>
-            <TextInput
-              style={styles.input}
-              value={data.name}
-              onChangeText={(txt) => setData(prev => ({ ...prev, name: txt }))}
-              placeholder="Andrea"
-            />
+            <TextInput style={styles.input} value={data.name} onChangeText={(txt) => setData((prev) => ({ ...prev, name: txt }))} placeholder="Andrea" />
           </>
         );
-        case "height":
-          return (
-            <>
+      case "height":
+        return (
+          <>
             <Text style={styles.label}>... Indícanos tu Altura</Text>
 
             <TextInput
@@ -110,30 +108,27 @@ const RegisterModal = ({ onClose }: RegisterModalProps) => {
               onChangeText={(txt) => setData((prev) => ({ ...prev, height: parseFloat(txt) }))}
               placeholder="e.g. 170"
               keyboardType="number-pad"
-              />
+            />
           </>
         );
-        case "weight":
-          return (
-            <>
-              <Text style={styles.label}>... Indícanos tu Peso</Text>
-              <TextInput
+      case "weight":
+        return (
+          <>
+            <Text style={styles.label}>... Indícanos tu Peso</Text>
+            <TextInput
               style={styles.input}
               value={data.weight.toString()}
               onChangeText={(txt) => setData((prev) => ({ ...prev, weight: parseFloat(txt) }))}
               placeholder="70"
               keyboardType="number-pad"
-              />
-            </>
-          );
-        case "activityLevel":
+            />
+          </>
+        );
+      case "activityLevel":
         return (
           <>
             <Text style={styles.label}>... Cual es tu Nivel de Actividad Física ?</Text>
-            <Picker
-              selectedValue={data.activityLevel}
-              onValueChange={(value) => setData((prev) => ({ ...prev, activityLevel: value }))}
-            >
+            <Picker selectedValue={data.activityLevel} onValueChange={(value) => setData((prev) => ({ ...prev, activityLevel: value }))}>
               <Picker.Item label="Selecciona una opción..." value="" />
               <Picker.Item label="Baja" value="Baja" />
               <Picker.Item label="Moderada" value="Moderada" />
@@ -141,6 +136,34 @@ const RegisterModal = ({ onClose }: RegisterModalProps) => {
             </Picker>
           </>
         );
+      case "age":
+        return (
+          <>
+            <Text style={styles.label}>¿Cuántos años tienes?</Text>
+            <TextInput
+              style={styles.input}
+              value={data.age.toString()}
+              onChangeText={(txt) => setData((prev) => ({ ...prev, age: parseInt(txt) || 0 }))}
+              placeholder="Ej: 25"
+              keyboardType="number-pad"
+            />
+          </>
+        );
+      case "sex":
+        return (
+          <>
+            <Text style={styles.label}>¿Sexo biológico?</Text>
+            <View style={styles.sexOptions}>
+              <Pressable style={[styles.sexButton, data.sex === "Femenino" && styles.sexSelected]} onPress={() => setData((prev) => ({ ...prev, sex: "Femenino" }))}>
+                <Text style={styles.sexLabel}>👩 Femenino</Text>
+              </Pressable>
+              <Pressable style={[styles.sexButton, data.sex === "Masculino" && styles.sexSelected]} onPress={() => setData((prev) => ({ ...prev, sex: "Masculino" }))}>
+                <Text style={styles.sexLabel}>👨 Masculino</Text>
+              </Pressable>
+            </View>
+          </>
+        );
+
       case "email":
         return (
           <>
@@ -148,7 +171,7 @@ const RegisterModal = ({ onClose }: RegisterModalProps) => {
             <TextInput
               style={styles.input}
               value={data.email}
-              onChangeText={(txt) => setData(prev => ({ ...prev, email: txt }))}
+              onChangeText={(txt) => setData((prev) => ({ ...prev, email: txt }))}
               placeholder="example@example.com"
               keyboardType="email-address"
               autoCapitalize="none"
@@ -159,22 +182,10 @@ const RegisterModal = ({ onClose }: RegisterModalProps) => {
         return (
           <>
             <Text style={styles.label}>Introduce Password</Text>
-            <Text >Password</Text>
-            <TextInput
-              style={styles.input}
-              value={data.password}
-              onChangeText={(txt) => setData(prev => ({ ...prev, password: txt }))}
-              placeholder="Password123*"
-              secureTextEntry
-            />
-            <Text >Repite Password</Text>
-            <TextInput
-              style={styles.input}
-              value={repeatPassword}
-              onChangeText={setRepeatPassword}
-              placeholder="Repeat password"
-              secureTextEntry
-            />
+            <Text>Password</Text>
+            <TextInput style={styles.input} value={data.password} onChangeText={(txt) => setData((prev) => ({ ...prev, password: txt }))} placeholder="Password123*" secureTextEntry />
+            <Text>Repite Password</Text>
+            <TextInput style={styles.input} value={repeatPassword} onChangeText={setRepeatPassword} placeholder="Repeat password" secureTextEntry />
           </>
         );
     }
@@ -185,20 +196,18 @@ const RegisterModal = ({ onClose }: RegisterModalProps) => {
       <View style={styles.overlay}>
         <View style={styles.modalContent}>
           <Pressable
-              style={styles.closeIcon}
-              onPress={() => {
-                setVisible(false);
-                router.replace('/');
-              }}
+            style={styles.closeIcon}
+            onPress={() => {
+              setVisible(false);
+              router.replace("/");
+            }}
           >
-              <Text style={styles.closeText}>✕</Text>
+            <Text style={styles.closeText}>✕</Text>
           </Pressable>
-          
+
           {renderContent()}
           <Pressable style={styles.button} onPress={handleNext}>
-            <Text style={styles.buttonText}>
-              {step === "password" ? "Guadar" : "Siguiente"}
-            </Text>
+            <Text style={styles.buttonText}>{step === "password" ? "Guadar" : "Siguiente"}</Text>
           </Pressable>
         </View>
       </View>
@@ -207,14 +216,14 @@ const RegisterModal = ({ onClose }: RegisterModalProps) => {
 };
 const styles = StyleSheet.create({
   closeIcon: {
-    position: 'absolute',
+    position: "absolute",
     top: 10,
     right: 10,
     zIndex: 1,
   },
   closeText: {
     fontSize: 18,
-    color: '#000',
+    color: "#000",
   },
   label: {
     fontSize: 24,
@@ -261,6 +270,26 @@ const styles = StyleSheet.create({
     padding: 8,
     marginVertical: 10,
     borderRadius: 5,
+  },
+  sexOptions: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginTop: 20,
+  },
+  sexButton: {
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    backgroundColor: "#f0f0f0",
+  },
+  sexSelected: {
+    backgroundColor: "#add8e6",
+    borderColor: "#0077b6",
+  },
+  sexLabel: {
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 

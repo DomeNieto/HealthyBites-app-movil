@@ -107,6 +107,8 @@ const updateUser = async (updatedUserData: userRegister): Promise<number> => {
         height: updatedUserData.infoUser.height,
         weight: updatedUserData.infoUser.weight,
         activityLevel: updatedUserData.infoUser.activityLevel,
+        sex: updatedUserData.infoUser.sex,
+        age: updatedUserData.infoUser.age,
       },
     };
 

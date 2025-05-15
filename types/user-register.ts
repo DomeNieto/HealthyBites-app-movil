@@ -6,5 +6,7 @@ export type userRegister = {
     height: number;
     weight: number;
     activityLevel: string;
+    sex: string;
+    age: number;
   };
 };

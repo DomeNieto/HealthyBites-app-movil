@@ -1,76 +1,132 @@
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import React, { useEffect, useState } from "react";
 import { InfoRecipe } from "../../../types/info-recipe";
 import recipesService from "../../../services/recipe-service";
-import { useNavigation } from "@react-navigation/native"; 
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { useRecipe } from "../../../context/RecipeContext";
+import { useNavigation } from "expo-router";
 
 const RecipesPage = () => {
-  const [recipes, setRecipes] = useState<InfoRecipe[]>([]);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const { recipesData, fetchRecipes, deleteRecipeInList } = useRecipe();
   const navigation = useNavigation();
   useEffect(() => {
-    async function fetchRecipes() {
-      const res = await recipesService.getAllRecipesByUser();
-      if (res == null) return;
-      setRecipes(res.data);
-    }
     fetchRecipes();
   }, []);
 
-  const totalCalories = selectedIds.reduce((total, id) => {
-    const recipe = recipes.find((r) => r.id === id);
-    if (!recipe) return total;
-    const recipeCal = recipe.ingredients.reduce(
-      (sum, ing) => sum + ing.quantityCalories
-    );
-    return total + recipeCal;
-  }, 0);
+  const totalCalories = recipesData
+    .filter((recipe) => selectedIds.includes(recipe.id))
+    .reduce((sumRecipes, recipe) => sumRecipes + recipe.ingredients.reduce((sumIngs, ing) => sumIngs + ing.quantityCalories, 0), 0);
 
   const toggleSelect = (id: number) => {
-    // TODO: Implementar Lógica para seleccionar recetas 
+    const isSelected = selectedIds.includes(id);
+    setSelectedIds(isSelected ? selectedIds.filter((x) => x !== id) : [...selectedIds, id]);
+  };
+
+  const deleteRecipe = async (id: number) => {
+    const message = "¿Está seguro que quiere eliminar el registro con ID: " + id + "?";
+    Alert.alert("Alert", message, [
+      {
+        text: "Cancelar",
+        onPress: () => console.log("Cancel Pressed"),
+        style: "cancel",
+      },
+      {
+        text: "Ok",
+        onPress: async () => {
+          const res = await recipesService.deleteRecipe(id);
+          if (res == null) return;
+          deleteRecipeInList(id);
+        },
+        style: "destructive",
+      },
+    ]);
   };
 
   const renderItem = ({ item }: { item: InfoRecipe }) => {
-    const recipeCal = item.ingredients.reduce(
-      (sum, ing) => sum + ing.quantityCalories,
-      0
-    );
+    const recipeCal = item.ingredients.reduce((sum, ing) => sum + ing.quantityCalories, 0);
     const selected = selectedIds.includes(item.id);
     return (
       <View style={styles.recipesContainer}>
-        <Pressable
-          style={styles.checkbox}
-          onPress={() => toggleSelect(item.id)}
-        >
-          <Text style={styles.checkboxText}>{selected ? "☑︎" : "☐"}</Text>
-        </Pressable>
-        <View style={styles.info}>
+        <View style={styles.cardHeader}>
           <Text style={styles.recipeTitle}>{item.name}</Text>
-          <Text style={styles.recipeInfo}>{recipeCal} kcal</Text>
+          <Pressable onPress={() => toggleSelect(item.id)}>
+            <Text style={styles.checkboxText}>
+              {selected ? <MaterialCommunityIcons name="checkbox-blank-circle" size={24} color="blue" /> : <MaterialCommunityIcons name="checkbox-blank-circle-outline" size={24} color="black" />}
+            </Text>
+          </Pressable>
         </View>
+        <Text>Ingredientes:</Text>
+        <View style={styles.ingredientsList}>
+          {item.ingredients.map((ing) => (
+            <Text key={ing.id} style={styles.ingredientName}>
+              {ing.name},
+            </Text>
+          ))}
+        </View>
+        <Text>Preparación:</Text>
+        <Text style={styles.preparation}>{item.preparation}</Text>
+        <View style={{ flexDirection: "row", marginTop: 10 }}>
+          <View
+            style={{
+              margin: 5,
+              backgroundColor: "#FF9500",
+              padding: 5,
+              borderRadius: 5,
+            }}
+          >
+            <Pressable>
+              <FontAwesome5 name="edit" size={20} color="white" />
+            </Pressable>
+          </View>
+          <View
+            style={{
+              margin: 5,
+              backgroundColor: "#FF3B30",
+              padding: 5,
+              borderRadius: 5,
+            }}
+          >
+            <Pressable onPress={() => deleteRecipe(item.id)}>
+              <FontAwesome6 name="trash-can" size={20} color="white" />
+            </Pressable>
+          </View>
+        </View>
+        <Text style={{ alignSelf: "flex-end", marginTop: -30, marginBottom: 10 }}>Nº Calorías: {recipeCal}</Text>
       </View>
     );
   };
 
   return (
     <View style={styles.container}>
-      <View style={styles.headerRow}>
-        <Text style={styles.headerText}>Total Calorías:</Text>
-        <Text style={styles.headerValue}>{totalCalories}</Text>
+      <View style={styles.row}>
+        <View style={styles.header}>
+          <Text>Total Calorías:</Text>
+          <Text style={styles.headerValue}>{totalCalories}</Text>
+        </View>
+
+        <Pressable style={styles.createButton} onPress={() => navigation.navigate("NewRecipe")}>
+          <Text style={styles.createButtonText}>+ Crear</Text>
+        </Pressable>
       </View>
 
-      <Pressable
-        style={styles.createButton}
-        onPress={() => navigation.navigate('NewRecipe')}  
-      >
-        <Text style={styles.createButtonText}>+ Crear</Text>
-      </Pressable>
-
       <FlatList
-        data={recipes}
+        data={recipesData}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
         contentContainerStyle={styles.list}
+        ListEmptyComponent={() => (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyEmoji}>🍽️</Text>
+            <Text style={styles.emptyTitle}>¡Ups! No hay recetas disponibles</Text>
+            <Text style={styles.emptyMessage}>¡No pases hambre!</Text>
+            <Text style={styles.emptySuggestion}>
+              Pulsa <Text style={{ fontWeight: "bold" }}>+ Crear</Text> y empieza a añadir nuevas recetas 🧑‍🍳✨
+            </Text>
+          </View>
+        )}
       />
     </View>
   );
@@ -79,15 +135,68 @@ const RecipesPage = () => {
 export default RecipesPage;
 
 const styles = StyleSheet.create({
+  emptyContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 60,
+    paddingHorizontal: 30,
+  },
+  emptyEmoji: {
+    fontSize: 48,
+    marginBottom: 10,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  emptyMessage: {
+    fontSize: 26,
+    color: "#666",
+    textAlign: "center",
+    marginBottom: 5,
+  },
+  emptySuggestion: {
+    fontSize: 15,
+    color: "#444",
+    textAlign: "center",
+    marginTop: 10,
+  },
+
+  ingredientsList: {
+    flexDirection: "row",
+    marginBottom: 8,
+  },
+  ingredientName: {
+    fontSize: 14,
+    fontFamily: "InstrumentSans-Regular",
+  },
+  preparation: {
+    fontSize: 14,
+    fontFamily: "InstrumentSans-Regular",
+    color: "#333",
+  },
+  cardHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
   container: {
     flex: 1,
     padding: 20,
     backgroundColor: "#fff",
   },
-  headerRow: {
+  header: {
+    marginBottom: 15,
+  },
+  row: {
+    marginTop: 10,
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 15,
   },
   headerText: {
     fontSize: 18,
@@ -96,10 +205,8 @@ const styles = StyleSheet.create({
   headerValue: {
     fontSize: 18,
     fontFamily: "InstrumentSans-Bold",
-    color: "#723694",
   },
   createButton: {
-    backgroundColor: "#723694",
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 8,
@@ -107,16 +214,14 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   createButtonText: {
-    color: "#fff",
+    color: "#723694",
     fontFamily: "InstrumentSans-Bold",
-    fontSize: 16,
+    fontSize: 20,
   },
   list: {
     paddingBottom: 20,
   },
   recipesContainer: {
-    flexDirection: "row",
-    alignItems: "center",
     backgroundColor: "#F6E7FF",
     padding: 12,
     borderRadius: 8,
@@ -136,6 +241,7 @@ const styles = StyleSheet.create({
   recipeTitle: {
     fontSize: 16,
     fontFamily: "InstrumentSans-Bold",
+    width: "80%",
   },
   recipeInfo: {
     fontSize: 16,

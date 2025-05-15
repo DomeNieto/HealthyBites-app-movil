@@ -1,40 +1,37 @@
-import { FlatList, Pressable, StyleSheet, Text, TextInput, View, } from "react-native";
+import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import React, { useEffect, useState } from "react";
-import { useRouter } from "expo-router";
 import ingredientService from "../../../services/ingredient-service";
+import { useRecipe } from "../../../context/RecipeContext";
+import { useNavigation } from "@react-navigation/native";
 
 const AddIngredient = () => {
-  const router = useRouter();
-  const [allIngredients, setAllIngredients] = useState<
-    { id: number; name: string }[]
-  >([]);
+  const { addIngredient } = useRecipe();
+  const [all, setAll] = useState<{ id: number; name: string }[]>([]);
   const [filter, setFilter] = useState("");
-  const [selected, setSelected] = useState<{ id: number; name: string }>();
+  const [selected, setSelected] = useState<{ id: number; name: string } | null>(null);
   const [quantity, setQuantity] = useState("");
-
   useEffect(() => {
-    ingredientService.getAllIngredients().then(setAllIngredients);
+    ingredientService.getAllIngredients().then(setAll);
   }, []);
-
-  const filtered = allIngredients.filter((i) =>
-    i.name.toLowerCase().includes(filter.toLowerCase())
-  );
-
+  const filtered = all.filter((i) => i.name.toLowerCase().includes(filter.toLowerCase()));
+  const navigation = useNavigation();
   const onAdd = () => {
-    // TODO: Implementar lógica para añadir ingrediente Y pasar a la receta
-  };
+  if (selected && quantity) {
+    addIngredient({
+      ingredientId: selected.id,
+      name: selected.name,
+      quantity: Number(quantity),
+    });
+    navigation.navigate("NewRecipe");
+  }
+};
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Añadir Ingrediente</Text>
 
       <Text style={styles.labelTitle}>Buscar Ingrediente</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Nombre"
-        value={filter}
-        onChangeText={setFilter}
-      />
+      <TextInput style={styles.input} placeholder="Nombre" value={filter} onChangeText={setFilter} />
 
       <FlatList
         data={filtered}
@@ -44,10 +41,7 @@ const AddIngredient = () => {
           <View style={styles.filteredRow}>
             <Text style={styles.ingredientName}>{item.name}</Text>
             <Pressable
-              style={({ pressed }) => [
-                styles.selectButton,
-                pressed && styles.selectButtonPressed,
-              ]}
+              style={({ pressed }) => [styles.selectButton, pressed && styles.selectButtonPressed]}
               onPress={() => setSelected(item)}
             >
               <Text style={styles.selectButtonText}>Seleccionar</Text>
@@ -150,7 +144,7 @@ const styles = StyleSheet.create({
   },
   filteredRow: {
     flexDirection: "row",
-    alignItems: "center",           
+    alignItems: "center",
     justifyContent: "space-between",
     paddingVertical: 8,
     paddingHorizontal: 12,
@@ -163,10 +157,10 @@ const styles = StyleSheet.create({
   },
   selectButton: {
     backgroundColor: "#723694",
-    paddingVertical: 4,              
-    paddingHorizontal: 8,            
+    paddingVertical: 4,
+    paddingHorizontal: 8,
     borderRadius: 5,
-    minWidth: 80,                   
+    minWidth: 80,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -176,7 +170,7 @@ const styles = StyleSheet.create({
   selectButtonText: {
     color: "#fff",
     fontFamily: "InstrumentSans-Bold",
-    fontSize: 12,                    
+    fontSize: 12,
   },
   ingredientRow: {
     flexDirection: "row",

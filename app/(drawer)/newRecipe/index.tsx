@@ -1,43 +1,55 @@
-import { FlatList, Pressable, StyleSheet, Text, View, TextInput } from "react-native";
-import React, { useState } from "react";
-import { useNavigation } from "expo-router";
+import { FlatList, Pressable, StyleSheet, Text, View, TextInput, Alert } from "react-native";
+import recipesService from "../../../services/recipe-service";
+import userService from "../../../services/user-service";
+import { useRecipe } from "../../../context/RecipeContext";
+import { useNavigation } from "@react-navigation/native";
+import { CreateRecipe } from "../../../types/create-recipe";
 
 const NewRecipe = () => {
-  const [ingredients, setIngredients] = useState<{ name: string; quantity: string }[]>([]);
+  const { data, setName, setPreparation, resetRecipe, addRecipe } = useRecipe();
   const navigation = useNavigation();
-  const [data, setData] = useState({
-    name: "",
-    preparation: "",
-  });
+  const onSave = async () => {
+  try {
+    const idUser = (await userService.getInfoUser()).id;
+    const createRecipe: CreateRecipe = {
+      name: data.name,
+      preparation: data.preparation,
+      userId: idUser,
+      ingredients: data.ingredients.map(i => ({
+        ingredientId: i.ingredientId,
+        quantity: i.quantity,
+      })),
+    };
+
+    const created = await recipesService.createRecipe(createRecipe);
+
+    addRecipe(created);
+    resetRecipe();
+    navigation.navigate("Recetas");
+  } catch (err) {
+    console.error(err);
+    Alert.alert("Error", "No se pudo crear la receta");
+  }
+};
+
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Nueva Receta</Text>
 
       <Text style={styles.labelTitle}>Nombre</Text>
-      <TextInput
-        style={styles.input}
-        value={data.name}
-        onChangeText={(txt) => setData((prev) => ({ ...prev, name: txt }))}
-        placeholder="Nombre"
-      />
+      <TextInput style={styles.input} placeholder="Nombre" value={data.name} onChangeText={setName} />
 
       <View style={styles.row}>
         <Text style={styles.label}>Ingredientes</Text>
-        <Pressable
-          style={({ pressed }) => [
-            styles.addButton,
-            pressed && styles.addButtonPressed,
-          ]}
-          onPress={() => navigation.navigate('addIngredient')}
-        >
+        <Pressable style={({ pressed }) => [styles.addButton, pressed && styles.addButtonPressed]} onPress={() => navigation.navigate("addIngredient")}>
           <Text style={styles.addButtonText}>Añadir +</Text>
         </Pressable>
       </View>
 
       <FlatList
-        data={ingredients}
-        keyExtractor={(_, idx) => idx.toString()}
+        data={data.ingredients}
+        keyExtractor={(_, i) => i.toString()}
         style={styles.list}
         renderItem={({ item }) => (
           <View style={styles.ingredientRow}>
@@ -48,17 +60,9 @@ const NewRecipe = () => {
       />
 
       <Text style={styles.labelTitle}>Preparación</Text>
-      <TextInput
-        style={[styles.input, styles.prepInput]}
-        value={data.preparation}
-        onChangeText={(txt) =>
-          setData((prev) => ({ ...prev, preparation: txt }))
-        }
-        placeholder="Escriba la receta ..."
-        multiline
-      />
+      <TextInput style={[styles.input, styles.prepInput]} placeholder="Preparación" multiline value={data.preparation} onChangeText={setPreparation} />
 
-      <Pressable style={styles.button}>
+      <Pressable onPress={onSave} style={styles.button}>
         <Text style={styles.buttonText}>Guardar</Text>
       </Pressable>
     </View>

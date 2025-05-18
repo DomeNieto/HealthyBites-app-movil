@@ -12,17 +12,17 @@ const BAR_WIDTH = 300;
 const HomePage = () => {
   const [userData, setUserData] = useState<InfoUser | null>(null);
   const [advices, setAdvices] = useState<InfoAdvice[]>([]);
+  const [userName, setUserName] = useState<string>("Usuario");
   const navigation = useNavigation();
-  const [userName, setUserName] = useState<string>('Usuario');
+  const IMC_MIN = 10;
+  const IMC_MAX = 40;
+
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: () => (
-        <Text style={{ fontSize: 17, fontWeight: 'bold', color: 'black' }}>
-          Hola, {userName}
-        </Text>
-      )
+      headerTitle: () => <Text style={{ fontSize: 17, fontWeight: "bold", color: "black" }}>Hola, {userName}</Text>,
     });
   }, [navigation, userName]);
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -60,9 +60,6 @@ const HomePage = () => {
   const bmiValue = height > 0 ? weight / (height / 100) ** 2 : 0;
   const bmi = bmiValue.toFixed(1);
 
-  const IMC_MIN = 10;
-  const IMC_MAX = 40;
-
   const getBmiCategory = (bmiVal: number) => {
     if (bmiVal < 18.5) return "Bajo peso";
     if (bmiVal < 25) return "Peso Saludable";
@@ -83,7 +80,6 @@ const HomePage = () => {
   };
 
   const markerLeft = (getMarkerPositionPercent(bmiValue) / 100) * BAR_WIDTH;
-
 
   return (
     <View style={styles.container}>
@@ -111,14 +107,8 @@ const HomePage = () => {
         <Text style={styles.imcTitle}>IMC (kg/m²):</Text>
         <View style={styles.info}>
           <Text style={styles.value}>{bmi}</Text>
-          <Text style={styles.imcText}>
-            {getBmiCategory(parseFloat(bmi)).replace(" ", "\n")}
-          </Text>
-          <Image
-            source={getBmiImage(parseFloat(bmi))}
-            style={styles.image}
-            resizeMode="contain"
-          />
+          <Text style={styles.imcText}>{getBmiCategory(parseFloat(bmi)).replace(" ", "\n")}</Text>
+          <Image source={getBmiImage(parseFloat(bmi))} style={styles.image} resizeMode="contain" />
         </View>
         <View style={styles.bmiBarContainer}>
           <View style={[styles.bmiSegment, { flex: 1, backgroundColor: "#2196F3" }]} />

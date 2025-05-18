@@ -6,10 +6,8 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import RececipesPage from "./recipes";
 import SettingsPage from "./settings";
 import LogoutScreen from "./logout";
-import { Text } from "react-native";
-import RecipesPage from "./recipes";
-import NewRecipe from "./newRecipe";
-import AddIngredient from "./addIngredient";
+import NewRecipe from "./new-recipe";
+import AddIngredient from "./add-ingredient";
 import { RecipeProvider } from "../../context/RecipeContext";
 
 const Drawer = createDrawerNavigator();

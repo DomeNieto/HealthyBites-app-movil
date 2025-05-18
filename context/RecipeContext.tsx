@@ -19,10 +19,18 @@ export const RecipeProvider = ({ children }: { children: ReactNode }) => {
     setRecipes((prev) => [...prev, recipe]);
   };
 
-  const deleteRecipeInList = (id: number)=> {
+  const deleteRecipeInList = (id: number) => {
     const listNewRecipes = recipesData.filter((recipe) => recipe.id !== id);
     setRecipes(listNewRecipes);
-  }
+  };
+
+  const updateRecipeInList = (updatedRecipe: InfoRecipe) => {
+    setRecipes((previousRecipes) =>
+      previousRecipes.map((recipe) =>
+        recipe.id === updatedRecipe.id ? updatedRecipe : recipe
+      )
+    );
+  };
 
   const [data, setData] = useState<CreateRecipe>({
     name: "",
@@ -32,13 +40,18 @@ export const RecipeProvider = ({ children }: { children: ReactNode }) => {
   });
 
   const setName = (name: string) => setData((prev) => ({ ...prev, name }));
-  const setPreparation = (preparation: string) =>
-    setData((prev) => ({ ...prev, preparation }));
+  const setPreparation = (preparation: string) => setData((prev) => ({ ...prev, preparation }));
 
-   const addIngredient = (ingredient: IngredientInfoRecipe) =>
+  const addIngredient = (ingredient: IngredientInfoRecipe) =>
     setData((prev) => ({
       ...prev,
       ingredients: [...prev.ingredients, ingredient],
+    }));
+
+  const setIngredients = (ingredients: IngredientInfoRecipe[]) =>
+    setData((prev) => ({
+      ...prev,
+      ingredients,
     }));
 
   const resetRecipe = () =>
@@ -48,7 +61,6 @@ export const RecipeProvider = ({ children }: { children: ReactNode }) => {
       userId: 0,
       ingredients: [],
     });
-
 
   return (
     <RecipeContext.Provider
@@ -61,7 +73,9 @@ export const RecipeProvider = ({ children }: { children: ReactNode }) => {
         recipesData,
         fetchRecipes,
         addRecipe,
-        deleteRecipeInList
+        deleteRecipeInList,
+        setIngredients,
+        updateRecipeInList
       }}
     >
       {children}

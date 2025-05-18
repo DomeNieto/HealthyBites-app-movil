@@ -11,4 +11,6 @@ export interface RecipeContextType {
   fetchRecipes: () => Promise<void>;
   addRecipe: (recipe: InfoRecipe) => void;
   deleteRecipeInList: (id: number) => void;
+  setIngredients: (ingredients: IngredientInfoRecipe[]) => void;
+  updateRecipeInList: (updatedRecipe: InfoRecipe) => void;
 }

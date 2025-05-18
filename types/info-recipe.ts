@@ -8,5 +8,6 @@ export type InfoRecipe = {
 type IngredientInfo = {
   id: number;
   name: string;
-  quantityCalories: number;
+  quantity: number;
+  quantityCalories: number; 
 };

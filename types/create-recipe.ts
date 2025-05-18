@@ -9,6 +9,7 @@ export interface IngredientInfoRecipe {
   ingredientId: number;
   name?: string;
   quantity: number;
+  quantityCalories?: number; 
 }
 export interface CreateRecipeResponse {
   data: {

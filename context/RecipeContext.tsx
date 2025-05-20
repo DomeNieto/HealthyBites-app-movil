@@ -11,26 +11,17 @@ export const RecipeProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchRecipes = async () => {
     const res = await recipesService.getAllRecipesByUser();
-    if (res == null) return;
-    setRecipes(res.data);
+    if (res?.data) {
+      const unique = Array.from(new Map(res.data.map(r => [r.id, r])).values());
+      setRecipes(unique);
+    }
   };
 
-  const addRecipe = (recipe: InfoRecipe) => {
-    setRecipes((prev) => [...prev, recipe]);
-  };
+  const addRecipe = (recipe: InfoRecipe) => setRecipes(prev => [...prev, recipe]);
 
-  const deleteRecipeInList = (id: number) => {
-    const listNewRecipes = recipesData.filter((recipe) => recipe.id !== id);
-    setRecipes(listNewRecipes);
-  };
+  const deleteRecipeInList = (id: number) => setRecipes(prev => prev.filter(recipe => recipe.id !== id));
 
-  const updateRecipeInList = (updatedRecipe: InfoRecipe) => {
-    setRecipes((previousRecipes) =>
-      previousRecipes.map((recipe) =>
-        recipe.id === updatedRecipe.id ? updatedRecipe : recipe
-      )
-    );
-  };
+  const updateRecipeInList = (updated: InfoRecipe) => setRecipes(prev => prev.map(recipe => recipe.id === updated.id ? updated : recipe));
 
   const [data, setData] = useState<CreateRecipe>({
     name: "",

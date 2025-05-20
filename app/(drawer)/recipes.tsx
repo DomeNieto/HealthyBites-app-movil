@@ -1,21 +1,79 @@
 import { Alert, FlatList, Pressable, StyleSheet, Text, View } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { InfoRecipe } from "../../types/info-recipe";
 import recipesService from "../../services/recipe-service";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useRecipe } from "../../context/RecipeContext";
-import { Link, router, useNavigation } from "expo-router";
+import { useNavigation } from "expo-router";
 import { DrawerNavigationProp } from "@react-navigation/drawer";
 import { DrawerParamList } from "../../types/navigation";
+import userService from "../../services/user-service";
+import * as Progress from 'react-native-progress';
+
 
 const RecipesPage = () => {
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const { recipesData, fetchRecipes, deleteRecipeInList } = useRecipe();
+  const [recommendedDailyCalories, setRecommendedDailyCalories] = useState(1500);
   const navigation = useNavigation<DrawerNavigationProp<DrawerParamList>>();
+  
   useEffect(() => {
     fetchRecipes();
+    // console.log('recipesData IDs:', recipesData.map(r => r.id));
+    const calculateRecommendedCalories = async () => {
+      try {
+        const fullInfo = await userService.getInfoUser();
+
+        if (!fullInfo || !fullInfo.infoUser) {
+          throw new Error("Datos de usuario incompletos o inválidos");
+        }
+
+        const { sex, weight, height, age, activityLevel } = fullInfo.infoUser;
+
+        const weightNum = Number(weight);
+        const heightNum = Number(height);
+        const ageNum = Number(age);
+        const activityLevelNormalized = activityLevel?.toLowerCase();
+        const sexNormalized = sex?.toLowerCase();
+
+        if (
+          !sexNormalized ||
+          isNaN(weightNum) ||
+          isNaN(heightNum) ||
+          isNaN(ageNum) ||
+          !activityLevelNormalized
+        ) {
+          throw new Error("Datos de usuario incompletos o inválidos");
+        }
+
+        const factoresActividad: Record<string, number> = {
+          baja: 1.2,
+          moderada: 1.55,
+          alta: 1.725,
+        };
+
+        const factorActividad = factoresActividad[activityLevelNormalized] || 1.2;
+
+        let tmb = 0;
+        if (sexNormalized === "femenino") {
+          tmb = 10 * weightNum + 6.25 * heightNum - 5 * ageNum - 161;
+        } else {
+          tmb = 10 * weightNum + 6.25 * heightNum - 5 * ageNum + 5;
+        }
+
+        const totalCaloriesRecomendadas = tmb * factorActividad;
+        setRecommendedDailyCalories(totalCaloriesRecomendadas);
+      } catch (error) {
+        console.error("Error al obtener info usuario o calcular calorías:", error);
+        setRecommendedDailyCalories(1500); 
+      }
+    };
+
+
+
+    calculateRecommendedCalories();
   }, []);
 
   const totalCalories = recipesData
@@ -29,7 +87,7 @@ const RecipesPage = () => {
     const isSelected = selectedIds.includes(id);
     setSelectedIds(isSelected ? selectedIds.filter((x) => x !== id) : [...selectedIds, id]);
   };
-  const recommendedDailyCalories = 1500;
+
   const progress = Math.min(totalCalories / recommendedDailyCalories, 1);
 
   let progressColor = "#4caf50"; 
@@ -77,7 +135,7 @@ const RecipesPage = () => {
         <View style={styles.ingredientsList}>
           {item.ingredients.map((ing) => (
             <Text key={ing.id} style={styles.ingredientName}>
-              {ing.name} — {ing.quantity} 
+              {ing.quantity} {ing.name}  
             </Text>
           ))}
         </View>
@@ -85,32 +143,18 @@ const RecipesPage = () => {
         <Text>Preparación:</Text>
         <Text style={styles.preparation}>{item.preparation}</Text>
         <View style={{ flexDirection: "row", marginTop: 10 }}>
-          <View
-            style={{
-              margin: 5,
-              backgroundColor: "#FF9500",
-              padding: 5,
-              borderRadius: 5,
-            }}
-          >
+          <View style={styles.buttomEdit}>
             <Pressable onPress={() => navigation.navigate("NewRecipe", { mode: "edit", recipeId: item.id })}>
               <FontAwesome5 name="edit" size={20} color="white" />
             </Pressable>
           </View>
-          <View
-            style={{
-              margin: 5,
-              backgroundColor: "#FF3B30",
-              padding: 5,
-              borderRadius: 5,
-            }}
-          >
+          <View style={styles.buttomTrash}>
             <Pressable onPress={() => deleteRecipe(item.id)}>
               <FontAwesome6 name="trash-can" size={20} color="white" />
             </Pressable>
           </View>
         </View>
-        <Text style={{ alignSelf: "flex-end", marginTop: -30, marginBottom: 10 }}>Nº Calorías: {recipeCal}</Text>
+        <Text style={styles.caloriesText}>Nº Calorías: {recipeCal}</Text>
       </View>
     );
   };
@@ -143,16 +187,24 @@ const RecipesPage = () => {
           </View>
         )}
       />
-      <View style={styles.progressBarContainer}>
-        <View style={[styles.progressBarFill, { width: `${progress * 100}%`, backgroundColor: progressColor }]} />
-      </View>
+      <View style={{ alignItems: 'center', marginTop: 20 }}>
+      <Progress.Bar
+        progress={progress}
+        width={300}
+        color={progressColor}
+        borderRadius={10}
+        height={20}
+        unfilledColor="#ddd"
+        borderWidth={0}
+      />
       <Text style={[styles.progressText, { color: progressColor }]}>
         {totalCalories > recommendedDailyCalories
-          ? "Has excedido tu límite calórico diario"
+          ? `Has excedido tu límite calórico diario (${recommendedDailyCalories.toFixed(0)} cal)`
           : totalCalories > recommendedDailyCalories * 0.75
-          ? "Casi alcanzas tu límite diario"
-          : "Estás dentro de tu límite calórico diario"}
+          ? `Casi alcanzas tu límite diario (${recommendedDailyCalories.toFixed(0)} cal)`
+          : `Estás dentro de tu límite calórico diario (${recommendedDailyCalories.toFixed(0)} cal)`}
       </Text>
+    </View>
     </View>
   );
 };
@@ -160,17 +212,22 @@ const RecipesPage = () => {
 export default RecipesPage;
 
 const styles = StyleSheet.create({
-  progressBarContainer: {
-    height: 20,
-    width: "100%",
-    backgroundColor: "#ddd",
-    borderRadius: 10,
-    marginTop: 20,
-    overflow: "hidden",
+  caloriesText: {
+    alignSelf: "flex-end", 
+    marginTop: -30, 
+    marginBottom: 10 
   },
-  progressBarFill: {
-    height: "100%",
-    borderRadius: 10,
+  buttomEdit: {
+    margin: 5,
+    backgroundColor: "#FF9500",
+    padding: 5,
+    borderRadius: 5,
+  },
+  buttomTrash: {
+    margin: 5,
+    backgroundColor: "#FF3B30",
+    padding: 5,
+    borderRadius: 5,
   },
   progressText: {
     marginTop: 8,

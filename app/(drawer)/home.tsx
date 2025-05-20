@@ -123,7 +123,7 @@ const HomePage = () => {
       <View>
         <Text style={styles.headerText}>Consejos:</Text>
         <FlatList
-          data={advices}
+          data={advices.slice(-5).reverse()}
           style={{ height: 300 }}
           ListEmptyComponent={() => (
             <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -150,9 +150,9 @@ const styles = StyleSheet.create({
     width: BAR_WIDTH,
     height: 20,
     marginTop: 10,
-    borderRadius: 5,
+    borderRadius: 10,
     overflow: "hidden",
-    alignContent: "center",
+    alignSelf: "center",
   },
   bmiSegment: {
     height: "100%",

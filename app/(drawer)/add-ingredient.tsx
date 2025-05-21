@@ -34,6 +34,8 @@ const AddIngredient = () => {
         quantity: Number(quantity),
       });
       navigation.navigate("NewRecipe", { mode, recipeId });
+      setQuantity("");
+      setSelected(null);
     }
   };
 

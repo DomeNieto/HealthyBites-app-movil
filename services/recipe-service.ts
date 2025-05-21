@@ -1,14 +1,14 @@
 import axios from "axios";
-import { CreateRecipe, CreateRecipeResponse } from "../types/create-recipe";
+import { CreateRecipe, RecipeResponse } from "../types/create-recipe";
 import userService from "./user-service";
-import { InfoRecipe } from "../types/info-recipe";
+import { InfoRecipe} from "../types/info-recipe";
 
 let API_URL = "http://192.168.0.123:8082/api/v1/recipes";
 
 
 const createRecipe = async (data: CreateRecipe): Promise<InfoRecipe> => {
   console.log("OBJETO A CREAAAR:", data);
-  const response = await axios.post<CreateRecipeResponse>(API_URL, data);
+  const response = await axios.post<RecipeResponse>(API_URL, data);
   console.log("HTTP status:", response.status);
 
   const dto = response.data.data;
@@ -17,10 +17,11 @@ const createRecipe = async (data: CreateRecipe): Promise<InfoRecipe> => {
     id: dto.id,
     name: dto.name,
     preparation: dto.preparation,
-    ingredients: dto.ingredients.map((i: any) => ({
-      id: i.id,
-      name: i.name,
-      quantityCalories: i.quantityCalories,
+    ingredients: dto.ingredients.map((i) => ({
+      id: i.ingredientId,
+      name: i.name ?? "",
+      quantity: i.quantity,
+      quantityCalories: i.quantityCalories ?? 0
     })),
   };
 };
@@ -108,9 +109,9 @@ const getRecipeById = async (recipeId: number) => {
   }
 }
 
-const updateRecipe = async (recipeId: number, data: CreateRecipe) => {
+const updateRecipe = async (recipeId: number, data: CreateRecipe): Promise<InfoRecipe> => {
   try {
-    const response = await axios.put<CreateRecipeResponse>(`${API_URL}/${recipeId}`, data);
+    const response = await axios.put<RecipeResponse>(`${API_URL}/${recipeId}`, data);
     console.log("HTTP status:", response.status);
 
     const dto = response.data.data;
@@ -119,10 +120,11 @@ const updateRecipe = async (recipeId: number, data: CreateRecipe) => {
       id: dto.id,
       name: dto.name,
       preparation: dto.preparation,
-      ingredients: dto.ingredients.map((i: any) => ({
-        id: i.id,
-        name: i.name,
-        quantityCalories: i.quantityCalories,
+      ingredients: dto.ingredients.map((i) => ({
+        id: i.ingredientId,
+        name: i.name ?? "",
+        quantity: i.quantity,
+        quantityCalories: i.quantityCalories ?? 0
       })),
     };
   } catch (error) {

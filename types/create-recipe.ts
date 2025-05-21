@@ -11,7 +11,7 @@ export interface IngredientInfoRecipe {
   quantity: number;
   quantityCalories?: number; 
 }
-export interface CreateRecipeResponse {
+export interface RecipeResponse {
   data: {
     id: number;
     name: string;

@@ -135,7 +135,7 @@ const RecipesPage = () => {
         <View style={styles.ingredientsList}>
           {item.ingredients.map((ing) => (
             <Text key={ing.id} style={styles.ingredientName}>
-              {ing.quantity} {ing.name}  
+              {ing.quantity}  {ing.name}  
             </Text>
           ))}
         </View>

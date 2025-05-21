@@ -55,8 +55,28 @@ const NewRecipe = () => {
     }, [mode])
   );
 
+  const deleteIngredient = (ingredientId: number) => {
+    setIngredients(
+      data.ingredients.filter((ing) => ing.ingredientId !== ingredientId)
+    );
+  };
+
   const onSave = async () => {
     try {
+      if (!data.name.trim()) {
+        Alert.alert("Campo requerido", "El nombre de la receta es obligatorio.");
+        return;
+      }
+
+      if (!data.preparation.trim()) {
+        Alert.alert("Campo requerido", "La preparación es obligatoria.");
+        return;
+      }
+
+      if (data.ingredients.length === 0) {
+        Alert.alert("Campo requerido", "Debe añadir al menos un ingrediente.");
+        return;
+      }
       const idUser = (await userService.getInfoUser()).id;
 
       const recipeToSend: CreateRecipe = {
@@ -99,7 +119,7 @@ const NewRecipe = () => {
       navigation.navigate("Recetas");
     } catch (err) {
       console.error(err);
-      Alert.alert("Error", "No se pudo guardar la receta");
+      Alert.alert("Error", "No se pudo guardar la receta, puede que ya exista una receta con ese nombre, intente nuevamente");
     }
   };
 
@@ -124,7 +144,10 @@ const NewRecipe = () => {
         renderItem={({ item }) => (
           <View style={styles.ingredientRow}>
             <Text style={styles.ingredientName}>{item.name}</Text>
-            <Text style={styles.ingredientQty}>{item.quantity}</Text>
+            <Text style={styles.ingredientQty}> {item.quantity}</Text>
+            <Pressable onPress={() => deleteIngredient(item.ingredientId)}>
+              <Text style={styles.deleteText}>Eliminar</Text>
+            </Pressable>
           </View>
         )}
       />
@@ -142,6 +165,16 @@ const NewRecipe = () => {
 export default NewRecipe;
 
 const styles = StyleSheet.create({
+  deleteText: {
+    color: 'white',
+    backgroundColor: 'red',
+    padding: 5,
+    borderRadius: 15,
+    fontWeight: 'bold',
+    marginLeft: 10,
+    marginTop: -5,
+  },
+
   container: {
     flex: 1,
     alignItems: "center",
@@ -220,10 +253,13 @@ const styles = StyleSheet.create({
   ingredientName: {
     fontSize: 14,
     fontFamily: "InstrumentSans-Regular",
+    flex: 1, 
+    alignItems: "center" 
   },
   ingredientQty: {
     fontSize: 14,
     fontFamily: "InstrumentSans-Regular",
+    
   },
   button: {
     backgroundColor: "#723694",

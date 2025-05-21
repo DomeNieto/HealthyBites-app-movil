@@ -7,5 +7,15 @@ export interface CreateRecipe {
 
 export interface IngredientInfoRecipe {
   ingredientId: number;
+  name?: string;
   quantity: number;
+  quantityCalories?: number; 
+}
+export interface RecipeResponse {
+  data: {
+    id: number;
+    name: string;
+    preparation: string;
+    ingredients: IngredientInfoRecipe[];
+  };
 }

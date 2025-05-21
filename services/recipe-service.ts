@@ -1,12 +1,41 @@
-import { CreateRecipe } from "../types/create-recipe";
+import axios from "axios";
+import { CreateRecipe, RecipeResponse } from "../types/create-recipe";
 import userService from "./user-service";
+import { InfoRecipe} from "../types/info-recipe";
 
 let API_URL = "http://192.168.0.123:8082/api/v1/recipes";
 
-const createRecipe = async (data: CreateRecipe) => {
-  const response = await axios.post(`${API_URL}`, data);
-  return response.status === 201;
+
+const createRecipe = async (data: CreateRecipe): Promise<InfoRecipe> => {
+  console.log("OBJETO A CREAAAR:", data);
+  const response = await axios.post<RecipeResponse>(API_URL, data);
+  console.log("HTTP status:", response.status);
+
+  const dto = response.data.data;
+
+  return {
+    id: dto.id,
+    name: dto.name,
+    preparation: dto.preparation,
+    ingredients: dto.ingredients.map((i) => ({
+      id: i.ingredientId,
+      name: i.name ?? "",
+      quantity: i.quantity,
+      quantityCalories: i.quantityCalories ?? 0
+    })),
+  };
 };
+
+const deleteRecipe = async (recipeId: number) => {
+  try {
+    const response = await axios.delete(`${API_URL}/${recipeId}`);
+    console.log("respuesta:", response.status);
+    return response;
+  } catch (e) {
+    console.error("error en deleteRecipe:", e);
+    throw e;
+  }
+}
 
 const addIngredientToRecipe = async (
   recipeId: number,
@@ -33,7 +62,7 @@ const getAllRecipesByUser = async () => {
     console.log("Respuesta del back:", json);
 
     if (response.ok) {
-      return { data: json };
+      return { data: json.data as InfoRecipe[] };
     } else {
       console.error("Error en la respuesta HTTP:", response.status);
       return null;
@@ -63,11 +92,55 @@ const getIngredientsByRecipe = async (recipeId : number) => {
   }
 };
 
+const getRecipeById = async (recipeId: number) => {
+  try {
+    const response = await fetch(`${API_URL}/${recipeId}`);
+    const json = await response.json();
+    console.log("receta :", json);
+    if (response.ok) {
+      return json;
+    } else {
+      console.error("Error en la respuesta HTTP:", response.status);
+      return null;
+    }
+  } catch (err) {
+    console.error("Error de red o fetch:", err);
+    return null;
+  }
+}
+
+const updateRecipe = async (recipeId: number, data: CreateRecipe): Promise<InfoRecipe> => {
+  try {
+    const response = await axios.put<RecipeResponse>(`${API_URL}/${recipeId}`, data);
+    console.log("HTTP status:", response.status);
+
+    const dto = response.data.data;
+
+    return {
+      id: dto.id,
+      name: dto.name,
+      preparation: dto.preparation,
+      ingredients: dto.ingredients.map((i) => ({
+        id: i.ingredientId,
+        name: i.name ?? "",
+        quantity: i.quantity,
+        quantityCalories: i.quantityCalories ?? 0
+      })),
+    };
+  } catch (error) {
+    console.error("Error al actualizar la receta:", error);
+    throw error;
+  }
+}
+
 const recipesService = {
   getAllRecipesByUser,
   createRecipe,
   getIngredientsByRecipe,
-  addIngredientToRecipe
+  addIngredientToRecipe,
+  deleteRecipe,
+  getRecipeById,
+  updateRecipe
 };
 
 export default recipesService;

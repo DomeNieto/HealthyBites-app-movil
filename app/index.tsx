@@ -14,7 +14,7 @@ export default function App() {
     loadFonts()
       .then(() => {
         setFontsLoaded(true);
-        return asyncStorageService.getUser("user-token");
+        return asyncStorageService.getUser(asyncStorageService.KEYS.userToken);
       })
       .then((token) => {
         if (token) {

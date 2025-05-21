@@ -1,5 +1,5 @@
 import axios from "axios";
-import { loginInfo } from "../types/login-info";
+import { loginInfo, LoginResponse } from "../types/login-info";
 import { userRegister } from "../types/user-register";
 import asyncStorageService from "./async-storage-service";
 
@@ -16,6 +16,8 @@ export const registerNewUser = async (data: userRegister): Promise<number> => {
         height: data.infoUser.height,
         weight: data.infoUser.weight,
         activityLevel: data.infoUser.activityLevel,
+        age: data.infoUser.age,
+        sex: data.infoUser.sex
       },
     };
 
@@ -40,16 +42,13 @@ export const registerNewUser = async (data: userRegister): Promise<number> => {
 
 const registerLogin = async (data: loginInfo) => {
   try {
-    const response = await axios.post(API_URL_LOGIN, {
+    const response = await axios.post<LoginResponse>(API_URL_LOGIN, {
       email: data.email,
       password: data.password,
     });
     if (response.status == 200) {
-      await asyncStorageService.saveUser(
-        "user-token",
-        response.data?.accessToken
-      );
-      await asyncStorageService.saveUser("user-email", data.email);
+      await asyncStorageService.saveUser(asyncStorageService.KEYS.userToken, response.data?.accessToken);
+      await asyncStorageService.saveUser(asyncStorageService.KEYS.userEmail, data.email);
       return response.status;
     } else {
       return null;
@@ -78,7 +77,7 @@ const getUserByEmail = async (email: string) => {
 };
 
 const getInfoUser = async () => {
-  const email = await asyncStorageService.getUser("user-email");
+  const email = await asyncStorageService.getUser(asyncStorageService.KEYS.userEmail);
 
   if (!email) {
     console.error("No se encontró el email del usuario en el almacenamiento.");
@@ -95,8 +94,7 @@ const getInfoUser = async () => {
 
 const updateUser = async (updatedUserData: userRegister): Promise<number> => {
   try {
-    const user = await getInfoUser();
-    const userId = user.data.id;
+    const userId = (await userService.getInfoUser()).id;
 
     const bodyToSend = {
       name: updatedUserData.name,
@@ -106,6 +104,8 @@ const updateUser = async (updatedUserData: userRegister): Promise<number> => {
         height: updatedUserData.infoUser.height,
         weight: updatedUserData.infoUser.weight,
         activityLevel: updatedUserData.infoUser.activityLevel,
+        sex: updatedUserData.infoUser.sex,
+        age: updatedUserData.infoUser.age,
       },
     };
 
@@ -118,8 +118,8 @@ const updateUser = async (updatedUserData: userRegister): Promise<number> => {
     });
 
     console.log("Respuesta del update:", response.status);
-    await asyncStorageService.deleteTokenUser("user-token");
-    await asyncStorageService.deleteTokenUser("user-email");
+    await asyncStorageService.deleteTokenUser(asyncStorageService.KEYS.userToken);
+    await asyncStorageService.deleteTokenUser(asyncStorageService.KEYS.userEmail);
     return response.status;
   } catch (err: any) {
     console.error("Error al actualizar usuario:", err.message || err);

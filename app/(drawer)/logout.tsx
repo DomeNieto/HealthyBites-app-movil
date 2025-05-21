@@ -1,7 +1,7 @@
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { Alert } from 'react-native';
 import { useCallback } from 'react';
-import asyncStorageService from '../../../services/async-storage-service';
+import asyncStorageService from '../../services/async-storage-service';
 import { router } from 'expo-router';
 
 const LogoutScreen = () => {
@@ -21,8 +21,8 @@ const LogoutScreen = () => {
           {
             text: 'Ok',
             onPress: async () => {
-              await asyncStorageService.deleteTokenUser("user-token");
-              await asyncStorageService.deleteTokenUser("user-email");
+              await asyncStorageService.deleteTokenUser(asyncStorageService.KEYS.userToken);
+              await asyncStorageService.deleteTokenUser(asyncStorageService.KEYS.userEmail);
               router.replace('/login');
             },
             style: 'destructive',

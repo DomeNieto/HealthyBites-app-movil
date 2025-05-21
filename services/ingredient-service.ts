@@ -1,8 +1,8 @@
-const API_URL = "http://192.168.0.123:8082/api/v1";
+const API_URL = "http://192.168.0.123:8082/api/v1/ingredients";
 
 const getAllIngredients = async () => {
   try {
-    const res = await fetch(`${API_URL}/ingredients`);
+    const res = await fetch(`${API_URL}`);
     const json = await res.json();
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return json.data as { id: number; name: string }[];

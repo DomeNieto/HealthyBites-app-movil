@@ -5,7 +5,7 @@ import { useRecipe } from "../../context/RecipeContext";
 import { RouteProp, useNavigation } from "@react-navigation/native";
 import { CreateRecipe } from "../../types/create-recipe";
 import { useRoute } from "@react-navigation/native";
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { useFocusEffect } from "expo-router";
 import { DrawerParamList } from "../../types/navigation";
 import { InfoRecipe } from "../../types/info-recipe";
@@ -19,41 +19,29 @@ const NewRecipe = () => {
   const route = useRoute<NewRecipeRouteProp>();
   const { mode, recipeId } = route.params || {};
 
-  useEffect(() => {
-    const loadRecipeToEdit = async () => {
-      if (mode === "edit" && recipeId) {
+  useFocusEffect(
+    useCallback(() => {
+      if (mode === "edit" && recipeId && data.ingredients.length === 0) {
         try {
-          const res = await recipesService.getRecipeById(recipeId);
-          if (res?.data) {
+          const fetchInfo = async () => {
+            const res = await recipesService.getRecipeById(recipeId);
+            if (!res?.data) return;
             setName(res.data.name);
             setPreparation(res.data.preparation);
-
             const formattedIngredients = res.data.ingredients.map((ing: any) => ({
               ingredientId: ing.id,
               name: ing.name,
               quantity: ing.quantity,
               quantityCalories: ing.quantityCalories,
             }));
-
             setIngredients(formattedIngredients);
-          }
+          };
+          fetchInfo();
         } catch (err) {
           console.error("Error al cargar receta:", err);
         }
       }
-    };
-
-    loadRecipeToEdit();
-  }, [mode, recipeId]);
-
-  useFocusEffect(
-    useCallback(() => {
-      if (mode === "create") {
-        return () => {
-          resetRecipe();
-        };
-      }
-    }, [mode])
+    }, [mode, recipeId, data.ingredients.length, setName, setPreparation, setIngredients])
   );
 
   const deleteIngredient = (ingredientId: number) => {
@@ -66,18 +54,15 @@ const NewRecipe = () => {
         Alert.alert("Campo requerido", "El nombre de la receta es obligatorio.");
         return;
       }
-
       if (!data.preparation.trim()) {
         Alert.alert("Campo requerido", "La preparación es obligatoria.");
         return;
       }
-
       if (data.ingredients.length === 0) {
         Alert.alert("Campo requerido", "Debe añadir al menos un ingrediente.");
         return;
       }
       const idUser = (await userService.getInfoUser()).id;
-
       const recipeToSend: CreateRecipe = {
         name: data.name,
         preparation: data.preparation,
@@ -138,7 +123,7 @@ const NewRecipe = () => {
 
       <FlatList
         data={data.ingredients}
-        keyExtractor={(_, i) => i.toString()}
+        keyExtractor={(item) => item.ingredientId.toString()}
         style={styles.list}
         renderItem={({ item }) => (
           <View style={styles.ingredientRow}>

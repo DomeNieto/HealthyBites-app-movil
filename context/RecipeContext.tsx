@@ -3,11 +3,18 @@ import { RecipeContextType } from "../types/recipe-context";
 import { InfoRecipe } from "../types/info-recipe";
 import recipesService from "../services/recipe-service";
 import { CreateRecipe, IngredientInfoRecipe } from "../types/create-recipe";
+import { Alert } from "react-native";
 
 const RecipeContext = createContext<RecipeContextType | undefined>(undefined);
 
 export const RecipeProvider = ({ children }: { children: ReactNode }) => {
   const [recipesData, setRecipes] = useState<InfoRecipe[]>([]);
+  const [data, setData] = useState<CreateRecipe>({
+    name: "",
+    preparation: "",
+    userId: 0,
+    ingredients: [],
+  });
 
   const fetchRecipes = async () => {
     const res = await recipesService.getAllRecipesByUser();
@@ -23,21 +30,23 @@ export const RecipeProvider = ({ children }: { children: ReactNode }) => {
 
   const updateRecipeInList = (updated: InfoRecipe) => setRecipes(prev => prev.map(recipe => recipe.id === updated.id ? updated : recipe));
 
-  const [data, setData] = useState<CreateRecipe>({
-    name: "",
-    preparation: "",
-    userId: 0,
-    ingredients: [],
-  });
 
   const setName = (name: string) => setData((prev) => ({ ...prev, name }));
   const setPreparation = (preparation: string) => setData((prev) => ({ ...prev, preparation }));
 
-  const addIngredient = (ingredient: IngredientInfoRecipe) =>
-    setData((prev) => ({
-      ...prev,
-      ingredients: [...prev.ingredients, ingredient],
-    }));
+  const addIngredient = (newIngredient: IngredientInfoRecipe) => {
+    setData(prev => {
+      const exists = prev.ingredients.some(ing => ing.ingredientId === newIngredient.ingredientId);
+      if (exists) {
+        Alert.alert("Ingrediente duplicado", "Ya has añadido ese ingrediente.");
+        return prev; 
+      }
+      return {
+        ...prev,
+        ingredients: [...prev.ingredients, newIngredient],
+      };
+    });
+  };
 
   const setIngredients = (ingredients: IngredientInfoRecipe[]) =>
     setData((prev) => ({

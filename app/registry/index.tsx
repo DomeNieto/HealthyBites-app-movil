@@ -3,6 +3,7 @@ import { Modal, View, Text, TextInput, StyleSheet, Pressable, Alert } from "reac
 import { Picker } from "@react-native-picker/picker";
 import { useRouter } from "expo-router";
 import { registerNewUser } from "../../services/user-service";
+import { Keyboard } from "react-native";
 
 type RegisterModalProps = {
   onClose: () => void;
@@ -108,6 +109,8 @@ const RegisterModal = ({ onClose }: RegisterModalProps) => {
               onChangeText={(txt) => setData((prev) => ({ ...prev, height: parseFloat(txt) }))}
               placeholder="e.g. 170"
               keyboardType="number-pad"
+              returnKeyType="done"
+              onSubmitEditing={Keyboard.dismiss}
             />
           </>
         );
@@ -121,6 +124,8 @@ const RegisterModal = ({ onClose }: RegisterModalProps) => {
               onChangeText={(txt) => setData((prev) => ({ ...prev, weight: parseFloat(txt) }))}
               placeholder="70"
               keyboardType="number-pad"
+              returnKeyType="done"
+              onSubmitEditing={Keyboard.dismiss}
             />
           </>
         );
@@ -146,6 +151,8 @@ const RegisterModal = ({ onClose }: RegisterModalProps) => {
               onChangeText={(txt) => setData((prev) => ({ ...prev, age: parseInt(txt) || 0 }))}
               placeholder="Ej: 25"
               keyboardType="number-pad"
+              returnKeyType="done"
+              onSubmitEditing={Keyboard.dismiss}
             />
           </>
         );

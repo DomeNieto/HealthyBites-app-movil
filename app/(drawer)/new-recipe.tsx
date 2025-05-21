@@ -3,13 +3,14 @@ import recipesService from "../../services/recipe-service";
 import userService from "../../services/user-service";
 import { useRecipe } from "../../context/RecipeContext";
 import { RouteProp, useNavigation } from "@react-navigation/native";
-import { CreateRecipe} from "../../types/create-recipe";
+import { CreateRecipe } from "../../types/create-recipe";
 import { useRoute } from "@react-navigation/native";
 import { useCallback, useEffect } from "react";
 import { useFocusEffect } from "expo-router";
 import { DrawerParamList } from "../../types/navigation";
 import { InfoRecipe } from "../../types/info-recipe";
 import { DrawerNavigationProp } from "@react-navigation/drawer";
+import { Keyboard } from "react-native";
 
 const NewRecipe = () => {
   const { data, setName, setPreparation, resetRecipe, addRecipe, setIngredients, updateRecipeInList } = useRecipe();
@@ -56,9 +57,7 @@ const NewRecipe = () => {
   );
 
   const deleteIngredient = (ingredientId: number) => {
-    setIngredients(
-      data.ingredients.filter((ing) => ing.ingredientId !== ingredientId)
-    );
+    setIngredients(data.ingredients.filter((ing) => ing.ingredientId !== ingredientId));
   };
 
   const onSave = async () => {
@@ -92,7 +91,7 @@ const NewRecipe = () => {
       if (mode === "edit" && recipeId) {
         await recipesService.updateRecipe(recipeId, recipeToSend);
         const recipeEdit: InfoRecipe = {
-          id: recipeId,   
+          id: recipeId,
           name: data.name,
           preparation: data.preparation,
           ingredients: data.ingredients.map((i) => ({
@@ -107,7 +106,7 @@ const NewRecipe = () => {
       } else {
         const created = await recipesService.createRecipe(recipeToSend);
         if (created) {
-          const recipesUpdated= await recipesService.getAllRecipesByUser();
+          const recipesUpdated = await recipesService.getAllRecipesByUser();
           if (recipesUpdated == null) return;
           const newRecipe = recipesUpdated.data[recipesUpdated.data.length - 1];
           addRecipe(newRecipe);
@@ -153,7 +152,15 @@ const NewRecipe = () => {
       />
 
       <Text style={styles.labelTitle}>Preparación</Text>
-      <TextInput style={[styles.input, styles.prepInput]} placeholder="Preparación" multiline value={data.preparation} onChangeText={setPreparation} />
+      <TextInput
+        style={[styles.input, styles.prepInput]}
+        placeholder="Preparación"
+        multiline
+        value={data.preparation}
+        onChangeText={setPreparation}
+        returnKeyType="done"
+        onSubmitEditing={Keyboard.dismiss}
+      />
 
       <Pressable onPress={onSave} style={styles.button}>
         <Text style={styles.buttonText}>Guardar</Text>
@@ -166,11 +173,11 @@ export default NewRecipe;
 
 const styles = StyleSheet.create({
   deleteText: {
-    color: 'white',
-    backgroundColor: 'red',
+    color: "white",
+    backgroundColor: "red",
     padding: 5,
     borderRadius: 15,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginLeft: 10,
     marginTop: -5,
   },
@@ -252,13 +259,12 @@ const styles = StyleSheet.create({
   ingredientName: {
     fontSize: 14,
     fontFamily: "InstrumentSans-Regular",
-    flex: 1, 
-    alignItems: "center" 
+    flex: 1,
+    alignItems: "center",
   },
   ingredientQty: {
     fontSize: 14,
     fontFamily: "InstrumentSans-Regular",
-    
   },
   button: {
     backgroundColor: "#723694",

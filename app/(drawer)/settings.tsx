@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Picker } from "@react-native-picker/picker";
 import userService from "../../services/user-service";
 import { useRouter } from "expo-router";
+import { Keyboard } from "react-native";
 
 const SettingsPage = () => {
   const router = useRouter();
@@ -86,19 +87,17 @@ const SettingsPage = () => {
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.label}>Nombre</Text>
-      <TextInput 
-        style={styles.input} 
-        value={data.name} 
-        onChangeText={(txt) => setData((prev) => ({ ...prev, name: txt }))} 
-        placeholder="Usuario" />
-      <Text style={styles.label}>Altura en centímetros</Text>
+      <TextInput style={styles.input} value={data.name} onChangeText={(txt) => setData((prev) => ({ ...prev, name: txt }))} placeholder="Usuario" />
 
+      <Text style={styles.label}>Altura en centímetros</Text>
       <TextInput
         style={styles.input}
         value={data.height.toString()}
         onChangeText={(txt) => setData((prev) => ({ ...prev, height: txt ? parseFloat(txt) : 0 }))}
         placeholder="156"
         keyboardType="number-pad"
+        returnKeyType="done"
+        onSubmitEditing={Keyboard.dismiss}
       />
       <Text style={styles.label}>Peso en Kilogramos</Text>
       <TextInput
@@ -107,19 +106,26 @@ const SettingsPage = () => {
         onChangeText={(txt) => setData((prev) => ({ ...prev, weight: txt ? parseFloat(txt) : 0 }))}
         placeholder="56"
         keyboardType="number-pad"
+        returnKeyType="done"
+        onSubmitEditing={Keyboard.dismiss}
       />
       <Text style={styles.label}>Nivel de Actividad Física</Text>
-      <Picker 
-        style={styles.labelActividad} 
-        selectedValue={data.activityLevel} 
-        onValueChange={(value) => setData((prev) => ({ ...prev, activityLevel: value }))}>
+      <Picker style={styles.labelActividad} selectedValue={data.activityLevel} onValueChange={(value) => setData((prev) => ({ ...prev, activityLevel: value }))}>
         <Picker.Item label="Selecciona una opción..." value="" />
         <Picker.Item label="Baja" value="Baja" />
         <Picker.Item label="Moderada" value="Moderada" />
         <Picker.Item label="Alta" value="Alta" />
       </Picker>
       <Text style={styles.label}>Edad</Text>
-      <TextInput style={styles.input} value={data.age.toString()} onChangeText={(txt) => setData((prev) => ({ ...prev, age: txt ? parseInt(txt) : 0 }))} placeholder="Edad" keyboardType="number-pad" />
+      <TextInput
+        style={styles.input}
+        value={data.age.toString()}
+        onChangeText={(txt) => setData((prev) => ({ ...prev, age: txt ? parseInt(txt) : 0 }))}
+        placeholder="Edad"
+        keyboardType="number-pad"
+        returnKeyType="done"
+        onSubmitEditing={Keyboard.dismiss}
+      />
 
       <Text style={styles.label}>Sexo</Text>
       <View style={styles.checkboxGroup}>
@@ -142,13 +148,7 @@ const SettingsPage = () => {
       />
 
       <Text style={styles.label}>Contraseña</Text>
-      <TextInput 
-        style={styles.input} 
-        value={data.password} 
-        onChangeText={(txt) => setData((prev) => ({ ...prev, password: txt }))} 
-        placeholder="Password123*" 
-        secureTextEntry 
-      />
+      <TextInput style={styles.input} value={data.password} onChangeText={(txt) => setData((prev) => ({ ...prev, password: txt }))} placeholder="Password123*" secureTextEntry />
       <Pressable style={styles.button} onPress={handleUpdate}>
         <Text style={styles.buttonText}>Actualizar</Text>
       </Pressable>

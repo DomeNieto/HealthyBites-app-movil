@@ -6,7 +6,7 @@ import { useNavigation } from "@react-navigation/native";
 import { useRoute, RouteProp } from "@react-navigation/native";
 import { DrawerParamList } from "../../types/navigation";
 import { DrawerNavigationProp } from "@react-navigation/drawer";
-
+import { Keyboard } from "react-native";
 
 type AddIngredientRouteProp = RouteProp<DrawerParamList, "addIngredient">;
 
@@ -64,7 +64,15 @@ const AddIngredient = () => {
         <>
           <Text style={styles.labelTitle}>Cantidad en gr/lts/und</Text>
           <Text style={styles.labelTitle}>Cantidad para: {selected.name}</Text>
-          <TextInput style={styles.input} placeholder="Cantidad (ej. 100.0)" keyboardType="numeric" value={quantity} onChangeText={setQuantity} />
+          <TextInput
+            style={styles.input}
+            placeholder="Cantidad (ej. 100.0)"
+            keyboardType="numeric"
+            value={quantity}
+            onChangeText={setQuantity}
+            returnKeyType="done"
+            onSubmitEditing={Keyboard.dismiss}
+          />
 
           <Pressable style={styles.button} onPress={onAdd}>
             <Text style={styles.buttonText}>Añadir</Text>

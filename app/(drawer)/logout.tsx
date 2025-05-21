@@ -21,8 +21,8 @@ const LogoutScreen = () => {
           {
             text: 'Ok',
             onPress: async () => {
-              await asyncStorageService.deleteTokenUser("user-token");
-              await asyncStorageService.deleteTokenUser("user-email");
+              await asyncStorageService.deleteTokenUser(asyncStorageService.KEYS.userToken);
+              await asyncStorageService.deleteTokenUser(asyncStorageService.KEYS.userEmail);
               router.replace('/login');
             },
             style: 'destructive',

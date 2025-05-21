@@ -47,11 +47,8 @@ const registerLogin = async (data: loginInfo) => {
       password: data.password,
     });
     if (response.status == 200) {
-      await asyncStorageService.saveUser(
-        "user-token",
-        response.data?.accessToken
-      );
-      await asyncStorageService.saveUser("user-email", data.email);
+      await asyncStorageService.saveUser(asyncStorageService.KEYS.userToken, response.data?.accessToken);
+      await asyncStorageService.saveUser(asyncStorageService.KEYS.userEmail, data.email);
       return response.status;
     } else {
       return null;
@@ -80,7 +77,7 @@ const getUserByEmail = async (email: string) => {
 };
 
 const getInfoUser = async () => {
-  const email = await asyncStorageService.getUser("user-email");
+  const email = await asyncStorageService.getUser(asyncStorageService.KEYS.userEmail);
 
   if (!email) {
     console.error("No se encontró el email del usuario en el almacenamiento.");
@@ -121,8 +118,8 @@ const updateUser = async (updatedUserData: userRegister): Promise<number> => {
     });
 
     console.log("Respuesta del update:", response.status);
-    await asyncStorageService.deleteTokenUser("user-token");
-    await asyncStorageService.deleteTokenUser("user-email");
+    await asyncStorageService.deleteTokenUser(asyncStorageService.KEYS.userToken);
+    await asyncStorageService.deleteTokenUser(asyncStorageService.KEYS.userEmail);
     return response.status;
   } catch (err: any) {
     console.error("Error al actualizar usuario:", err.message || err);

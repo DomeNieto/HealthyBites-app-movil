@@ -26,7 +26,7 @@ const HomePage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const email = await asyncStorageService.getUser("user-email");
+        const email = await asyncStorageService.getUser(asyncStorageService.KEYS.userEmail);
         const cleanEmail = email?.replace(/^"(.*)"$/, "$1");
 
         if (!cleanEmail) {

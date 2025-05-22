@@ -6,8 +6,6 @@ import { useRouter } from "expo-router";
 import { Keyboard } from "react-native";
 
 const SettingsPage = () => {
-  const router = useRouter();
-
   const [data, setData] = useState({
     name: "",
     weight: 0.0,
@@ -18,7 +16,12 @@ const SettingsPage = () => {
     sex: "",
     age: 0,
   });
+  const router = useRouter();
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=\[\]{};':"\\|,.<>\/?]).{8,}$/;
 
+  /* The `useEffect` hook in the provided code snippet is used to fetch user data when the
+  `SettingsPage` component mounts for the first time. Here's a breakdown of what it does: */
   useEffect(() => {
     const fetchUserData = async () => {
       const userData = await userService.getInfoUser();
@@ -40,9 +43,15 @@ const SettingsPage = () => {
     fetchUserData();
   }, []);
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=\[\]{};':"\\|,.<>\/?]).{8,}$/;
-
+  /**
+   * The function `handleUpdate` is responsible for validating and updating user data, displaying
+   * appropriate alerts for errors or successful updates.
+   * @returns The `handleUpdate` function is returning different alerts based on the conditions met
+   * during the update process. If any of the required fields are missing or invalid, an error alert is
+   * shown. If the email or password format is incorrect, specific error alerts are displayed. If the
+   * update operation is successful, a success alert is shown, prompting the user to log in again. If
+   * there is an error during the
+   */
   const handleUpdate = async () => {
     if (!data.name.trim() || data.height == 0 || data.weight == 0 || !data.activityLevel || !data.email.trim() || !data.password.trim() || !data.sex || data.age === 0) {
       Alert.alert("Error", "Por favor, completa todos los campos.");

@@ -1,9 +1,8 @@
 import axios from "axios";
-import userService from "./user-service";
-import asyncStorageService, { getToken } from "./async-storage-service";
+import { getToken } from "./async-storage-service";
 import { InfoAdvice } from "../types/info-advice";
-
-let API_URL = "http://192.168.0.18:8082/api/v1/advices";
+import { API_URL } from "../config";
+import { getTokenCleaned } from "../utitlity/utility";
 
 /**
  * The function `getAllAdvice` fetches data from an API and returns it, handling errors along the way.
@@ -12,26 +11,23 @@ let API_URL = "http://192.168.0.18:8082/api/v1/advices";
  * response or during the fetch process.
  */
 const getAllAdvice = async () => {
-  const token = await getToken();
-  const cleanedToken = token!.replace(/['"]+/g, "");
+  const token = await getTokenCleaned();
 
   try {
-    const res = await axios.get<{data: InfoAdvice}>(
-      `${API_URL}`,
+    const response = await axios.get<{ data: InfoAdvice[] }>(
+      `${API_URL}api/v1/advices`,
       {
         headers: {
-          Authorization: `Bearer ${cleanedToken}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
-
-    return res.data.data;
+    return response.data.data;
   } catch (error) {
     console.error("getAllIngredients unexpected error:", error);
     return [];
   }
 };
-
 
 const adviceService = {
   getAllAdvice,

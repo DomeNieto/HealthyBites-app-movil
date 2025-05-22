@@ -53,10 +53,7 @@ const LoginPage = () => {
   const sendForm = () => {
     if (
       formLogin.email === "" ||
-      !formLogin.email.includes("@") ||
-      !formLogin.email.includes(".") ||
       formLogin.password === "" ||
-      formLogin.password.length < 8 ||
       containsCharacters(formLogin.password)
     ) {
       Toast.show({
@@ -81,7 +78,7 @@ const LoginPage = () => {
           source={require("./../../assets/images/logo.png")}
           style={{ width: 100, height: 100, marginBottom: 20 }}
         />
-          <View style={styles.inputWrapper}>
+        <View style={styles.inputWrapper}>
           <TextInput
             style={styles.input}
             value={formLogin.email}
@@ -91,29 +88,31 @@ const LoginPage = () => {
             returnKeyType="done"
           />
         </View>
-  
+
         <View style={styles.inputWrapper}>
           <TextInput
             style={styles.input}
             value={formLogin.password}
-            onChangeText={(text) => setFormLogin({ ...formLogin, password: text })}
+            onChangeText={(text) =>
+              setFormLogin({ ...formLogin, password: text })
+            }
             placeholder="Contraseña"
             secureTextEntry={true}
             returnKeyType="done"
           />
         </View>
-  
+
         <View>
           <Pressable style={styles.button} onPress={sendForm}>
             <Text style={styles.buttonText}>Iniciar sesión</Text>
           </Pressable>
-  
+
           <Link href="./../registry" style={styles.link}>
             No Tengo Cuenta
           </Link>
         </View>
       </View>
-  
+
       <View style={styles.footer}>
         <Text style={styles.develop}>Desarrollado por:</Text>
         <Image
@@ -123,7 +122,6 @@ const LoginPage = () => {
       </View>
     </View>
   );
-  
 };
 
 export default LoginPage;
@@ -187,7 +185,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   inputWrapper: {
-    width: "70%",       
+    width: "70%",
     marginBottom: 20,
   },
   input: {
@@ -195,6 +193,6 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     borderRadius: 5,
     padding: 10,
-    width: "100%",       
+    width: "100%",
   },
 });

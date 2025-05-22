@@ -1,12 +1,12 @@
 import axios from "axios";
 import { loginInfo, LoginResponse } from "../types/login-info";
 import { userRegister } from "../types/user-register";
-import asyncStorageService from "./async-storage-service";
+import asyncStorageService, { getToken } from "./async-storage-service";
+import { API_URL } from "../config";
+import { getTokenCleaned } from "../utitlity/utility";
+import { UserApiResponse } from "../types/response-interfase";
 
-const API_URL = "http://192.168.0.123:8082/api/v1/users";
-const API_URL_LOGIN = "http://192.168.0.123:8082/api/auth/login";
-
-export const registerNewUser = async (data: userRegister): Promise<number> => {
+export const registerNewUser = async (data: userRegister) => {
   try {
     const newUserRegister = {
       name: data.name,
@@ -17,85 +17,82 @@ export const registerNewUser = async (data: userRegister): Promise<number> => {
         weight: data.infoUser.weight,
         activityLevel: data.infoUser.activityLevel,
         age: data.infoUser.age,
-        sex: data.infoUser.sex
+        sex: data.infoUser.sex,
       },
     };
 
-    console.log("envio datos al back: ", newUserRegister);
-
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newUserRegister),
-    });
-
-    console.log("Status:", response.status);
-
+    const response = await axios.post(
+      `${API_URL}api/v1/users`,
+      newUserRegister,
+      {
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+    console.log(data);
     return response.status;
-  } catch (err: any) {
-    console.error("Error:", err.message || err);
+  } catch (error) {
+    console.error("registerNewUser error:", error);
     return 500;
   }
 };
 
-const registerLogin = async (data: loginInfo) => {
+export const registerLogin = async (data: loginInfo) => {
   try {
-    const response = await axios.post<LoginResponse>(API_URL_LOGIN, {
-      email: data.email,
-      password: data.password,
-    });
-    if (response.status == 200) {
-      await asyncStorageService.saveUser(asyncStorageService.KEYS.userToken, response.data?.accessToken);
-      await asyncStorageService.saveUser(asyncStorageService.KEYS.userEmail, data.email);
+    const response = await axios.post<LoginResponse>(
+      `${API_URL}api/auth/login`,
+      {
+        email: data.email,
+        password: data.password,
+      }
+    );
+
+    if (response.status === 200) {
+      await asyncStorageService.saveUser(
+        asyncStorageService.KEYS.userToken,
+        response.data.accessToken
+      );
+      await asyncStorageService.saveUser(
+        asyncStorageService.KEYS.userEmail,
+        data.email
+      );
       return response.status;
-    } else {
-      return null;
     }
-  } catch (e) {
-    console.log(`Fetch Error: ${e}`);
+    console.log(data);
+    return null;
+  } catch (error) {
+    console.error("registerLogin error:", error);
+    return null;
   }
 };
 
-const getUserByEmail = async (email: string) => {
+export const getUserByEmail = async (email: string) => {
   try {
-    const response = await fetch(`${API_URL}/by-email?email=${email}`);
-    const json = await response.json();
-    console.log("Respuesta del back:", json);
+    const token = await getTokenCleaned();
+    const response = await axios.get<UserApiResponse>(
+      `${API_URL}api/v1/users/by-email`,
+      {
+        params: { email },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
-    if (response.ok) {
-      return json;
-    } else {
-      console.error("Error en la respuesta HTTP:", response.status);
-      return null;
-    }
-  } catch (err) {
-    console.error("Error de red o fetch:", err);
+    if (response.status >= 200 && response.status < 300) return response.data;
+    console.error("getUserByEmail bad response:", response.status);
+    return null;
+  } catch (error) {
+    console.error("getUserByEmail error:", error);
     return null;
   }
 };
 
-const getInfoUser = async () => {
-  const email = await asyncStorageService.getUser(asyncStorageService.KEYS.userEmail);
-
-  if (!email) {
-    console.error("No se encontró el email del usuario en el almacenamiento.");
-    return null;
-  }
-
-  const existingUser = await userService.getUserByEmail(email);
-  if (!existingUser || !existingUser.data?.id) {
-    console.error("Usuario no encontrado por email.");
-    return null;
-  }
-  return existingUser.data;
-};
-
-const updateUser = async (updatedUserData: userRegister): Promise<number> => {
+export const updateUser = async (
+  //Pasar el id por parametro
+  userId: string,
+  updatedUserData: userRegister
+): Promise<number> => {
   try {
-    const userId = (await userService.getInfoUser()).id;
-
     const bodyToSend = {
       name: updatedUserData.name,
       email: updatedUserData.email,
@@ -109,20 +106,29 @@ const updateUser = async (updatedUserData: userRegister): Promise<number> => {
       },
     };
 
-    const response = await fetch(`${API_URL}/${userId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(bodyToSend),
-    });
+    const token = await getTokenCleaned();
 
-    console.log("Respuesta del update:", response.status);
-    await asyncStorageService.deleteTokenUser(asyncStorageService.KEYS.userToken);
-    await asyncStorageService.deleteTokenUser(asyncStorageService.KEYS.userEmail);
+    const response = await axios.put(
+      `${API_URL}api/v1/users/${userId}`,
+      bodyToSend,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    await asyncStorageService.deleteTokenUser(
+      asyncStorageService.KEYS.userToken
+    );
+    await asyncStorageService.deleteTokenUser(
+      asyncStorageService.KEYS.userEmail
+    );
+
     return response.status;
-  } catch (err: any) {
-    console.error("Error al actualizar usuario:", err.message || err);
+  } catch (error) {
+    console.error("updateUser error:", error);
     return 500;
   }
 };
@@ -132,7 +138,6 @@ const userService = {
   registerLogin,
   getUserByEmail,
   updateUser,
-  getInfoUser
 };
 
 export default userService;

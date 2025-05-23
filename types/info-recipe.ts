@@ -36,7 +36,7 @@ export type InfoRecipe = {
  * would store the calorie content per unit of the ingredient, allowing for easy calculation of total
  * calories when the quantity is known.
  */
-type IngredientInfo = {
+export type IngredientInfo = {
   id: number;
   name: string;
   quantity: number;

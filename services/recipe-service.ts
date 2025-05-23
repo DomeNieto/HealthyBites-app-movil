@@ -23,7 +23,7 @@ const createRecipe = async (data: CreateRecipe) => {
       name: dto.name,
       preparation: dto.preparation,
       ingredients: dto.ingredients.map((i) => ({
-        id: i.ingredientId,
+        id: i.id,
         name: i.name ?? "",
         quantity: i.quantity,
         quantityCalories: i.quantityCalories ?? 0,
@@ -120,7 +120,7 @@ const updateRecipe = async (recipeId: number, data: CreateRecipe): Promise<InfoR
       name: dto.name,
       preparation: dto.preparation,
       ingredients: dto.ingredients.map((i) => ({
-        id: i.ingredientId,
+        id: i.id,
         name: i.name ?? "",
         quantity: i.quantity,
         quantityCalories: i.quantityCalories ?? 0,

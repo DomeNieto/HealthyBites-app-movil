@@ -27,6 +27,6 @@ export type DrawerParamList = {
   Recetas: undefined;
   Ajustes: undefined;
   Logout : undefined;
-  NewRecipe: { mode?: "edit" | "create"; recipeId?: number };
-  addIngredient: { mode: "edit" | "create"; recipeId?: number };
+  NewRecipe: { mode?: "edit" | "create"; recipeId?: string };
+  addIngredient: { mode: "edit" | "create"; recipeId?: string };
 };

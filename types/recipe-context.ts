@@ -7,7 +7,6 @@ export interface RecipeContextType {
   setName: (name: string) => void;
   setPreparation: (preparation: string) => void;
   addIngredient: (ingredient: IngredientInfoRecipe) => void;
-  resetRecipe: () => void;
   recipesData: InfoRecipe[];
   fetchRecipes: () => Promise<void>;
   addRecipe: (recipe: InfoRecipe) => void;

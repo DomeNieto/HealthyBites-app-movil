@@ -1,5 +1,5 @@
 import { Alert, FlatList, Pressable, StyleSheet, Text, View } from "react-native";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { InfoRecipe } from "../../types/info-recipe";
 import recipesService from "../../services/recipe-service";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
@@ -138,7 +138,7 @@ const RecipesPage = () => {
         <Text style={styles.preparation}>{item.preparation}</Text>
         <View style={{ flexDirection: "row", marginTop: 10 }}>
           <View style={styles.buttomEdit}>
-            <Pressable onPress={() => navigation.navigate("NewRecipe", { mode: "edit", recipeId: item.id })}>
+            <Pressable onPress={() => navigation.navigate("NewRecipe", { mode: "edit", recipeId: item.id.toString() })}>
               <FontAwesome5 name="edit" size={20} color="white" />
             </Pressable>
           </View>
@@ -160,7 +160,7 @@ const RecipesPage = () => {
           <Text>Total Calorías:</Text>
           <Text style={styles.headerValue}>{totalCalories}</Text>
         </View>
-        <Pressable style={styles.createButton} onPress={() => navigation.navigate({ name: "NewRecipe", params: {} })}>
+        <Pressable style={styles.createButton} onPress={() => navigation.navigate("NewRecipe", { mode: "create", recipeId: "0" })}>
           <Text style={styles.createButtonText}>+ Crear</Text>
         </Pressable>
       </View>

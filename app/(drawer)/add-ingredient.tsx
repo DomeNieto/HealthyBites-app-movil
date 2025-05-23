@@ -14,12 +14,12 @@ const AddIngredient = () => {
   const { addIngredient } = useRecipe();
   const [ingredientsList, setIngredientsList] = useState<{ id: number; name: string }[]>([]);
   const [filter, setFilter] = useState("");
-  const [selected, setSelected] = useState<{ id: number; name: string } | null>(null);
+  const [selected, setSelected] = useState<{ id: number; name: string, quantityCalories?: number } | null>(null);
   const [quantity, setQuantity] = useState("");
   const navigation = useNavigation<DrawerNavigationProp<DrawerParamList>>();
 
   const route = useRoute<AddIngredientRouteProp>();
-  const { mode, recipeId } = route.params || {};
+  const { mode, recipeId } = route.params;
 
   /* The `useEffect` hook is used to fetch all ingredients from the ingredient service when the
   component mounts. It sets the fetched ingredients to the `all` state variable. */
@@ -48,7 +48,7 @@ const AddIngredient = () => {
         ingredientId: selected.id,
         name: selected.name,
         quantity: Number(quantity),
-        active: true,
+        quantityCalories: selected.quantityCalories ?? 0,
       });
       navigation.navigate("NewRecipe", { mode, recipeId });
       setQuantity("");

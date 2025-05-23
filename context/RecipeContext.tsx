@@ -1,6 +1,6 @@
 import React, { createContext, useState, ReactNode, useContext } from "react";
 import { RecipeContextType } from "../types/recipe-context";
-import { InfoRecipe } from "../types/info-recipe";
+import { InfoRecipe, IngredientInfo } from "../types/info-recipe";
 import recipesService from "../services/recipe-service";
 import { CreateRecipe, IngredientInfoRecipe } from "../types/create-recipe";
 import asyncStorageService from "../services/async-storage-service";
@@ -76,13 +76,7 @@ export const RecipeProvider = ({ children }: { children: ReactNode }) => {
       ingredients,
     }));
 
-  const resetRecipe = () =>
-    setData({
-      name: "",
-      preparation: "",
-      userId: 0,
-      ingredients: [],
-    });
+  
 
   return (
     <RecipeContext.Provider
@@ -91,7 +85,6 @@ export const RecipeProvider = ({ children }: { children: ReactNode }) => {
         setName,
         setPreparation,
         addIngredient,
-        resetRecipe,
         recipesData,
         fetchRecipes,
         addRecipe,

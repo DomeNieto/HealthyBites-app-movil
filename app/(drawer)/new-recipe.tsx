@@ -1,13 +1,12 @@
-import React from "react";
-import { FlatList, Pressable, StyleSheet, Text, View, TextInput, Alert } from "react-native";
+import React, { useState } from "react";
+import { FlatList, Pressable, StyleSheet, Text, View, TextInput, Alert, ActivityIndicator } from "react-native";
 import recipesService from "../../services/recipe-service";
 import userService from "../../services/user-service";
 import { useRecipe } from "../../context/RecipeContext";
 import { RouteProp, useNavigation } from "@react-navigation/native";
-import { CreateRecipe } from "../../types/create-recipe";
+import { CreateRecipe, IngredientInfoRecipe } from "../../types/create-recipe";
 import { useRoute } from "@react-navigation/native";
-import { useCallback, useEffect } from "react";
-import { useFocusEffect } from "expo-router";
+import { useEffect } from "react";
 import { DrawerParamList } from "../../types/navigation";
 import { InfoRecipe } from "../../types/info-recipe";
 import { DrawerNavigationProp } from "@react-navigation/drawer";
@@ -17,41 +16,61 @@ import { cleanEmail } from "../../utitlity/utility";
 
 // The `NewRecipe` component is a React Native screen that allows users to create or edit a recipe.
 const NewRecipe = () => {
-  const { data, setName, setPreparation, resetRecipe, addRecipe, setIngredients, updateRecipeInList } = useRecipe();
+  const { data, fetchRecipes, setName, setPreparation, addRecipe, setIngredients, updateRecipeInList } = useRecipe();
   /* The line `const navigation = useNavigation<DrawerNavigationProp<DrawerParamList>>();` is using the
   `useNavigation` hook from React Navigation to get the navigation object specific to the Drawer
   navigation. */
   const navigation = useNavigation<DrawerNavigationProp<DrawerParamList>>();
   type NewRecipeRouteProp = RouteProp<DrawerParamList, "NewRecipe">;
   const route = useRoute<NewRecipeRouteProp>();
-  const { mode, recipeId } = route.params || {};
+  const { mode, recipeId } = route.params;
+  const [isLoading, setIsLoading] = useState(true);
 
-  useFocusEffect(
-    useCallback(() => {
-      if (mode === "edit" && recipeId && data.ingredients.length === 0) {
+  const clearRecipeFormContext = () => {
+    setName("");
+    setPreparation("");
+    setIngredients([]);
+  };
+
+  useEffect(() => {
+    const loadRecipe = async () => {
+      setIsLoading(true);
+      if (mode === "edit" && recipeId) {
         try {
-          const fetchInfo = async () => {
-            const res = await recipesService.getRecipeById(recipeId);
-            if (res?.data) {
-              setName(res.data.name);
-              setPreparation(res.data.preparation);
-              const formattedIngredients = res.data.ingredients.map((ing: any) => ({
-                ingredientId: ing.id,
-                name: ing.name,
-                quantity: ing.quantity,
-                active: ing.active,
-                quantityCalories: ing.quantityCalories,
-              }));
-              setIngredients(formattedIngredients);
-            }
-          };
-          fetchInfo();
+          const res = await recipesService.getRecipeById(Number(recipeId));
+          if (res?.data) {
+            setName(res.data.name);
+            setPreparation(res.data.preparation);
+            setIngredients(res.data.ingredients.map((ing: any) => ({
+              ingredientId: ing.id,
+              name: ing.name,
+              quantity: ing.quantity,
+              active: ing.active,
+              quantityCalories: ing.quantityCalories ?? 0,
+            })));
+          } else {
+            Alert.alert("Error", "No se encontró la receta.");
+          }
         } catch (err) {
           console.error("Error al cargar receta:", err);
+          Alert.alert("Error", "Ocurrió un error al cargar la receta.");
         }
+      } else {
+        clearRecipeFormContext();
       }
-    }, [mode, recipeId, data.ingredients.length, setName, setPreparation, setIngredients])
-  );
+      setIsLoading(false);
+    };
+
+    loadRecipe();
+  }, [mode, recipeId]);
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "white" }}>
+        <ActivityIndicator size="large" color="#723694" />
+      </View>
+    );
+  }
 
   /**
    * The `deleteIngredient` function filters out an ingredient from a list based on its ID.
@@ -105,22 +124,22 @@ const NewRecipe = () => {
         userId: user.data.id,
         ingredients: data.ingredients.map((i) => ({
           ingredientId: i.ingredientId,
-          active: i.active,
           quantity: i.quantity,
+          quantityCalories: i.quantityCalories ?? 0,
         })),
       };
 
       if (mode === "edit" && recipeId) {
-        await recipesService.updateRecipe(recipeId, recipeToSend);
+        await recipesService.updateRecipe(Number(recipeId), recipeToSend);
         const recipeEdit: InfoRecipe = {
-          id: recipeId,
+          id: Number(recipeId),
           name: data.name,
           preparation: data.preparation,
           ingredients: data.ingredients.map((i) => ({
             id: i.ingredientId,
             name: i.name ?? "",
             quantity: i.quantity,
-            active: i.active,
+            active: true,
             quantityCalories: i.quantityCalories ?? 0,
           })),
         };
@@ -129,24 +148,32 @@ const NewRecipe = () => {
       } else {
         const created = await recipesService.createRecipe(recipeToSend);
         if (created) {
-          const recipesUpdated = await recipesService.getAllRecipesByUser(user.data.id.toString());
-          if (recipesUpdated == null) return;
-          const newRecipe = recipesUpdated.data[recipesUpdated.data.length - 1];
-          addRecipe(newRecipe);
+          addRecipe(created);
+          Alert.alert("Éxito", "Receta creada");
+        } else {
+          console.log("API de creación no devolvió la receta. Se re-intentará cargar la lista.");
+          await fetchRecipes();
+          Alert.alert("Éxito", "Receta creada (actualizando lista).");
         }
-        Alert.alert("Éxito", "Receta creada");
       }
-
-      resetRecipe();
       navigation.navigate("Recetas");
+      clearRecipeFormContext();
     } catch (err) {
       console.error(err);
       Alert.alert("Error", "No se pudo guardar la receta, puede que ya exista una receta con ese nombre, intente nuevamente");
     }
   };
 
+
+  const handleBackPress = () => {
+    navigation.navigate("Recetas");
+  };
+
   return (
     <View style={styles.container}>
+      <Pressable onPress={handleBackPress} style={styles.containerButtomBack}>
+        <Text style={styles.buttomBack}>{"<- Volver"}</Text>
+      </Pressable>
       <Text style={styles.title}>{mode === "edit" ? "Editar Receta" : "Nueva Receta"}</Text>
 
       <Text style={styles.labelTitle}>Nombre</Text>
@@ -167,7 +194,6 @@ const NewRecipe = () => {
           <View style={styles.ingredientRow}>
             <Text style={styles.ingredientName}>{item.name}</Text>
             <Text style={styles.ingredientQty}> {item.quantity}</Text>
-            <Text style={styles.ingredientQty}> {item.active}</Text>
             <Pressable onPress={() => deleteIngredient(item.ingredientId)}>
               <Text style={styles.deleteText}>Eliminar</Text>
             </Pressable>
@@ -196,6 +222,17 @@ const NewRecipe = () => {
 export default NewRecipe;
 
 const styles = StyleSheet.create({
+  containerButtomBack: {
+    position: "absolute",
+    top: 620,
+    left: 10,
+  },
+  buttomBack: {
+    fontSize: 18,
+    color: "#723694",
+    borderRadius: 5,
+    padding: 5,
+  },
   deleteText: {
     color: "white",
     backgroundColor: "red",
@@ -214,7 +251,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontFamily: "InstrumentSans-Bold",
     color: "#723694",
-    textAlign: "center",
+    alignSelf: "auto",
     marginBottom: 20,
   },
   label: {

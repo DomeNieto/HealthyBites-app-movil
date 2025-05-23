@@ -37,18 +37,18 @@ const SettingsPage = () => {
     const fetchUserData = async () => {
       const emailStored = await asyncStorageService.getInfoStorage(asyncStorageService.KEYS.userEmail);
       if (!emailStored) {
-        console.error("Error al obtener el email de AsyncStorage");
+        console.log("Error al obtener el email de AsyncStorage");
         return;
       }
       const email = cleanEmail(emailStored);
       if (!email) {
-        console.error("Error al tipar el email");
+        console.log("Error al tipar el email");
         return;
       }
 
       const userRes = await userService.getUserByEmail(email);
       if (!userRes) {
-        console.error("Usuario no encontrado");
+        console.log("Usuario no encontrado");
         return;
       }
       setData({
@@ -108,7 +108,7 @@ const SettingsPage = () => {
         Alert.alert("Error", "No se pudo actualizar el usuario.");
       }
     } catch (error) {
-      console.error("Error al actualizar:", error);
+      console.log("Error al actualizar:", error);
       Alert.alert("Error", "Ocurrió un error al actualizar los datos.");
     }
   };

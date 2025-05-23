@@ -25,7 +25,7 @@ export default function App() {
         }
         setFontsLoaded(true);
       } catch (error) {
-        console.error("Error loading fonts or when get inforation user:", error);
+        console.log("Error loading fonts or when get inforation user:", error);
       }
     }
     loadFont();

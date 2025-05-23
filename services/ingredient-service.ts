@@ -31,7 +31,7 @@ const getAllIngredients = async () => {
 
     return res.data.data;
   } catch (error) {
-    console.error("getAllIngredients unexpected error:", error);
+    console.log("getAllIngredients unexpected error:", error);
     return [];
   }
 };

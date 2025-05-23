@@ -58,7 +58,7 @@ const NewRecipe = () => {
             Alert.alert("Error", "No se encontró la receta.");
           }
         } catch (err) {
-          console.error("Error al cargar receta:", err);
+          console.log("Error al cargar receta:", err);
           Alert.alert("Error", "Ocurrió un error al cargar la receta.");
         }
       } else {
@@ -114,17 +114,17 @@ const NewRecipe = () => {
 
       const emailStored = await asyncStorageService.getInfoStorage(asyncStorageService.KEYS.userEmail);
       if (!emailStored) {
-        console.error("Error", "Email no encontrado.");
+        console.log("Error", "Email no encontrado.");
         return;
       }
       const email = cleanEmail(emailStored);
       if (!email) {
-        console.error("Error", "Email no válido.");
+        console.log("Error", "Email no válido.");
         return;
       }
       const user = await userService.getUserByEmail(email);
       if (!user?.data.id) {
-        console.error("Error", "No se pudo obtener el usuario.");
+        console.log("Error", "No se pudo obtener el usuario.");
         return;
       }
       const recipeToSend: CreateRecipe = {
@@ -168,7 +168,7 @@ const NewRecipe = () => {
       navigation.navigate("Recetas");
       clearRecipeFormContext();
     } catch (err) {
-      console.error(err);
+      console.log(err);
       Alert.alert("Error", "No se pudo guardar la receta, puede que ya exista una receta con ese nombre, intente nuevamente");
     }
   };

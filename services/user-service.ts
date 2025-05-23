@@ -37,7 +37,7 @@ export const registerNewUser = async (data: userRegister) => {
     console.log(data);
     return response.status;
   } catch (error) {
-    console.error("registerNewUser error:", error);
+    console.log("registerNewUser error:", error);
     return 500;
   }
 };
@@ -73,7 +73,7 @@ export const registerLogin = async (data: loginInfo) => {
     console.log(data);
     return null;
   } catch (error) {
-    console.error("registerLogin error:", error);
+    console.log("registerLogin error:", error);
     return null;
   }
 };
@@ -92,10 +92,10 @@ export const getUserByEmail = async (email: string) => {
     );
 
     if (response.status >= 200 && response.status < 300) return response.data;
-    console.error("getUserByEmail bad response:", response.status);
+    console.log("getUserByEmail bad response:", response.status);
     return null;
   } catch (error) {
-    console.error("getUserByEmail error:", error);
+    console.log("getUserByEmail error:", error);
     return null;
   }
 };
@@ -145,7 +145,7 @@ export const updateUser = async ( userId: string, updatedUserData: userRegister)
 
     return response.status;
   } catch (error) {
-    console.error("updateUser error:", error);
+    console.log("updateUser error:", error);
     return 500;
   }
 };

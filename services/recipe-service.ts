@@ -59,7 +59,7 @@ const deleteRecipe = async (recipeId: number) => {
     console.log("respuesta:", response.status);
     return response.status;
   } catch (e) {
-    console.error("error en deleteRecipe:", e);
+    console.log("error en deleteRecipe:", e);
     throw e;
   }
 };
@@ -86,7 +86,7 @@ const addIngredientToRecipe = async (recipeId: number, ingredientId: number, qua
     );
     return response.status === 200;
   } catch (error) {
-    console.error(error);
+    console.log(error);
   }
 };
 
@@ -107,7 +107,7 @@ const getAllRecipesByUser = async (userId: string) => {
     console.log("Respuesta del back:", response.data);
     return response.data;
   } catch (err) {
-    console.error("Error en getAllRecipesByUser:", err);
+    console.log("Error en getAllRecipesByUser:", err);
     return null;
   }
 };
@@ -130,7 +130,7 @@ const getRecipeById = async (recipeId: number) => {
     console.log("receta :", response.data);
     return response.data as RecipeResponse;
   } catch (err) {
-    console.error("Error en getRecipeById:", err);
+    console.log("Error en getRecipeById:", err);
     return null;
   }
 };
@@ -168,7 +168,7 @@ const updateRecipe = async (recipeId: number, data: CreateRecipe): Promise<InfoR
       })),
     };
   } catch (error) {
-    console.error("Error al actualizar la receta:", error);
+    console.log("Error al actualizar la receta:", error);
     throw error;
   }
 };

@@ -23,7 +23,7 @@ const getAllAdvice = async () => {
     );
     return response.data.data;
   } catch (error) {
-    console.error("getAllAdvices unexpected error:", error);
+    console.log("getAllAdvices unexpected error:", error);
     return [];
   }
 };

@@ -38,7 +38,7 @@ const AddIngredient = () => {
     const fetchIngredients = async () => {
       const ingredients = await ingredientService.getAllIngredients();
       if (!ingredients) {
-        console.error("No se encontraron ingredientes");
+        console.log("No se encontraron ingredientes");
         return;
       }
       setIngredientsList(ingredients);

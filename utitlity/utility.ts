@@ -39,7 +39,7 @@ export const getBmiCategory = (val: number) => {
  */
 export const cleanEmail = (email: string) => {
   if (email == null) {
-    console.error("Email no existente");
+    console.log("Email no existente");
     return;
   }
   return email?.replace(/^"(.*)"$/, "$1");
@@ -123,6 +123,6 @@ export const calculateRecommendedCalories = async (fullInfo: UserApiResponse) =>
     const totalCalories = tmb * factorActivity;
     return totalCalories;
   } catch (error) {
-    console.error("Error al obtener info usuario o calcular calorías:", error);
+    console.log("Error al obtener info usuario o calcular calorías:", error);
   }
 };

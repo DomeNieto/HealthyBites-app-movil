@@ -35,17 +35,17 @@ export const RecipeProvider = ({ children }: { children: ReactNode }) => {
   const fetchRecipes = async () => {
     const emailStored = await asyncStorageService.getInfoStorage(asyncStorageService.KEYS.userEmail);
     if (!emailStored) {
-      console.error("Error al obtener el email de AsyncStorage");
+      console.log("Error al obtener el email de AsyncStorage");
       return;
     }
     const email = cleanEmail(emailStored);
     if (!email) {
-      console.error("Error al tipar el email");
+      console.log("Error al tipar el email");
       return;
     }
     const user = await userService.getUserByEmail(email);
     if (!user) {
-      console.error("Usuario no encontrado en la solicitud de recetas");
+      console.log("Usuario no encontrado en la solicitud de recetas");
       return;
     }
     const res = await recipesService.getAllRecipesByUser(user.data.id.toString());

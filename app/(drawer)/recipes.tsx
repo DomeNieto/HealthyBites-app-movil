@@ -30,18 +30,18 @@ const RecipesPage = () => {
       try {
         const emailStored = await asyncStorageService.getInfoStorage(asyncStorageService.KEYS.userEmail);
         if (!emailStored) {
-          console.error("Error", "Email no encontrado.");
+          console.log("Error", "Email no encontrado.");
           return;
         }
         const email = cleanEmail(emailStored);
         if (!email) {
-          console.error("Error", "Email no válido.");
+          console.log("Error", "Email no válido.");
           return;
         }
 
         const fullInfo = await userService.getUserByEmail(email);
         if (!fullInfo) {
-          console.error("Error", "Usuario no encontrado.");
+          console.log("Error", "Usuario no encontrado.");
           return;
         }
         const totalCaloriesRecomended = await calculateRecommendedCalories(fullInfo);

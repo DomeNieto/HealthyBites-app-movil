@@ -17,12 +17,12 @@ const LayoutHome = () => {
           asyncStorageService.KEYS.userEmail
         );
         if (!emailStored) {
-          console.error("Error al obtener el email de AsyncStorage");
+          console.log("Error al obtener el email de AsyncStorage");
           return;
         }
         const email = cleanEmail(emailStored);
         if (!email) {
-          console.error("Error al tipar el email");
+          console.log("Error al tipar el email");
           return;
         }
         const user = await userService.getUserByEmail(email);

@@ -91,7 +91,8 @@ const RegisterModal = ({ onClose }: RegisterModalProps) => {
         onClose();
         router.replace("../login");
       } else {
-        Alert.alert("Error", `Registro fallido (status ${status})`);
+        Alert.alert("Error", `Registro fallido puede que se haya caido la conexión o que el email introducido ya exista, intente de nuevo.`);
+        router.replace("/");
       }
     }
   };

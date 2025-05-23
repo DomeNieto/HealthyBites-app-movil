@@ -105,12 +105,13 @@ const HomePage = () => {
           />
         </View>
         <View style={styles.bmiBarContainer}>
-          <View style={[styles.bmiSegment, { flex: 1 }]} />
-          <View style={[styles.bmiSegment, { flex: 1.5 }]} />
-          <View style={[styles.bmiSegment, { flex: 1 }]} />
-          <View style={[styles.bmiSegment, { flex: 1.5 }]} />
+          <View style={[styles.bmiSegment, { flex: 1, backgroundColor: "#2196F3" }]} />
+          <View style={[styles.bmiSegment, { flex: 1.5, backgroundColor: "#4CAF50" }]} />
+          <View style={[styles.bmiSegment, { flex: 1, backgroundColor: "#FF9800" }]} />
+          <View style={[styles.bmiSegment, { flex: 1.5, backgroundColor: "#F44336" }]} />
           <View style={[styles.bmiMarker, { left: markerLeft }]} />
         </View>
+
       </View>
       <Text style={styles.headerText}>Consejos:</Text>
       <FlatList

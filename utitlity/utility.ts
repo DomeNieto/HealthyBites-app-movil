@@ -4,6 +4,11 @@ import { UserApiResponse } from "../types/response-interfase";
 const IMC_MIN = 10;
 const IMC_MAX = 40;
 
+/**
+ * getTokenCleaned is an asynchronous function that retrieves a token from AsyncStorage,
+ * cleans it by removing any surrounding quotes, and returns the cleaned token.
+ * @returns 
+ */
 export const getTokenCleaned = async () => {
   const token = await asyncStorageService.getInfoStorage(asyncStorageService.KEYS.userToken);
 
@@ -13,6 +18,12 @@ export const getTokenCleaned = async () => {
   return token.replace(/['"]+/g, "");
 };
 
+/**
+ * getBmiCategory is a function that takes a BMI value as input and returns the corresponding BMI category.
+ * The categories are defined as follows:
+ * @param val 
+ * @returns 
+ */
 export const getBmiCategory = (val: number) => {
   if (val < 18.5) return "Bajo peso";
   if (val < 25) return "Peso Saludable";
@@ -20,6 +31,12 @@ export const getBmiCategory = (val: number) => {
   return "Obesidad";
 };
 
+/**
+ * cleanEmail is a function that takes an email string as input and removes any surrounding quotes.
+ * If the email is null, it logs an error message to the console.
+ * @param email 
+ * @returns 
+ */
 export const cleanEmail = (email: string) => {
   if (email == null) {
     console.error("Email no existente");
@@ -28,6 +45,12 @@ export const cleanEmail = (email: string) => {
   return email?.replace(/^"(.*)"$/, "$1");
 };
 
+/**
+ * getBmiImage is a function that takes a BMI value as input and returns the corresponding image based on the BMI category.
+ * The images are defined as follows:
+ * @param val 
+ * @returns 
+ */
 export const getBmiImage = (val: number) => {
   if (val < 18.5) {
     return require("./../assets/images/delgado.png");
@@ -38,6 +61,12 @@ export const getBmiImage = (val: number) => {
   }
 };
 
+/**
+ * getMarkerPercent is a function that takes a BMI value as input and returns the percentage position of the BMI value
+ * within the defined range of BMI values (10 to 40).
+ * @param val 
+ * @returns 
+ */
 export const getMarkerPercent = (val: number) => {
   if (val < IMC_MIN) {
     return 0;
@@ -54,6 +83,11 @@ export const getMarkerPercent = (val: number) => {
   return porcentaje;
 };
 
+/**
+ * calculateRecommendedCalories is an asynchronous function that calculates the recommended daily caloric intake
+ * for a user based on their personal information
+ * 
+ * */
 export const calculateRecommendedCalories = async (fullInfo: UserApiResponse) => {
   try {
     if (!fullInfo || !fullInfo.data.infoUser) {

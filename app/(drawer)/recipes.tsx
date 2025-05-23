@@ -20,9 +20,10 @@ const RecipesPage = () => {
   const [recommendedDailyCalories, setRecommendedDailyCalories] = useState(1500);
   const navigation = useNavigation<DrawerNavigationProp<DrawerParamList>>();
 
-  /* The above code snippet is a `useEffect` hook in a TypeScript React component. It is fetching
-  recipes and then calculating the recommended daily calories for a user based on their personal
-  information such as sex, weight, height, age, and activity level. */
+  /**
+   * The `useEffect` hook is used to fetch the list of recipes when the component mounts.
+   * It calls the `fetchRecipes` function from the `RecipeContext` to retrieve the recipes.
+   */
   useEffect(() => {
     fetchRecipes();
     const getCalories = async () => {
@@ -54,22 +55,26 @@ const RecipesPage = () => {
     getCalories();
   }, []);
 
-  /* The `totalCalories` constant is calculating the total number of calories for the selected recipes. */
+  /**
+   * The `totalCalories` variable calculates the total calories of selected recipes by filtering
+   * the `recipesData` array based on the selected IDs and summing up the calories of each ingredient
+   */
   const totalCalories = recipesData
     .filter((recipe) => selectedIds.includes(recipe.id))
     .reduce((sumRecipes, recipe) => sumRecipes + recipe.ingredients.reduce((sumIngs, ing) => sumIngs + ing.quantityCalories, 0), 0);
 
   /**
-   * The `toggleSelect` function toggles the selection of an item with the given ID in a list of selected
-   * IDs.
-   * @param {number} id - The `id` parameter in the `toggleSelect` function is a number that represents
-   * the identifier of an item that you want to toggle the selection status for.
+   * Select or deselect a recipe to consume by ID.
+   * @param id 
    */
   const toggleSelect = (id: number) => {
     const isSelected = selectedIds.includes(id);
     setSelectedIds(isSelected ? selectedIds.filter((x) => x !== id) : [...selectedIds, id]);
   };
-
+  /**
+   * The `progress` variable calculates the progress of total calories consumed compared to the recommended daily calories.
+   * It ensures that the value does not exceed 1 (100%). (take the minimum value between the calories consumed and those recommended)
+   */
   const progress = Math.min(totalCalories / recommendedDailyCalories, 1);
 
   let progressColor = "#4caf50";
@@ -81,11 +86,10 @@ const RecipesPage = () => {
   }
 
   /**
-   * The function `deleteRecipe` prompts the user with a confirmation alert before deleting a recipe
-   * with a specific ID.
-   * @param {number} id - The `id` parameter in the `deleteRecipe` function is the unique identifier of
-   * the recipe that you want to delete. This identifier is used to locate and delete the specific
-   * recipe from the list of recipes.
+   * The `deleteRecipe` function is called when the user presses the delete button.
+   * It shows an alert to confirm the deletion and calls the `deleteRecipeInList` function
+   * from the `RecipeContext` to remove the recipe from the list.
+   * @param id 
    */
   const deleteRecipe = async (id: number) => {
     const message = "¿Está seguro que quiere eliminar el registro con ID: " + id + "?";
@@ -107,11 +111,12 @@ const RecipesPage = () => {
     ]);
   };
 
-  /* The above code is a TypeScript React component that renders a recipe item. It calculates the total
-  calories of the recipe based on the ingredients, checks if the recipe is selected, displays the
-  recipe name, ingredients, preparation steps, edit and delete buttons, and the total number of
-  calories. The component also includes functionality to toggle the selection of the recipe, edit
-  the recipe, and delete the recipe. */
+  /**
+   * The `renderItem` function is used to render each recipe item in the FlatList.
+   * It displays the recipe name, ingredients, preparation steps, and buttons for editing and deleting the recipe.
+   * @param param0 
+   * @returns 
+   */
   const renderItem = ({ item }: { item: InfoRecipe }) => {
     const recipeCal = item.ingredients.reduce((sum, ing) => sum + ing.quantityCalories, 0);
     const selected = selectedIds.includes(item.id);

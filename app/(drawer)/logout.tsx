@@ -9,9 +9,8 @@ const LogoutScreen = () => {
   const navigation = useNavigation<any>();
 
   /**
-   * The `useFocusEffect` hook is used to perform side effects when the screen comes into focus.
-   * In this case, it shows an alert asking the user if they are sure they want to log out.
-   * If the user confirms, it deletes the user token and email from async storage and navigates to the login screen.
+   * The `useFocusEffect` hook is used to show an alert when the screen is focused.
+   * It prompts the user to confirm if they want to log out.
    */
 
   useEffect(() => {

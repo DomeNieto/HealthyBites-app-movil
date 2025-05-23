@@ -1,21 +1,28 @@
 import { View, Text, FlatList, Image, StyleSheet } from "react-native";
-import React, { useEffect, useLayoutEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import asyncStorageService from "../../services/async-storage-service";
 import { InfoUser } from "../../types/info-user";
 import { InfoAdvice } from "../../types/info-advice";
-import { useNavigation } from "expo-router";
 import userService from "../../services/user-service";
 import adviceService from "../../services/advice-service";
 import { cleanEmail, getBmiCategory, getBmiImage, getMarkerPercent } from "../../utitlity/utility";
 
 const BAR_WIDTH = 300;
 
-
+/**
+ * HomePage is a React component that displays the user's personal information,
+ * including weight, height, and BMI (Body Mass Index).
+ * It also shows a list of advice items related to health and wellness.
+ */
 const HomePage = () => {
   const [userData, setUserData] = useState<InfoUser | null>(null);
   const [advices, setAdvices] = useState<InfoAdvice[]>([]);
-  const navigation = useNavigation();
 
+  /**
+   * The `useEffect` hook is used to fetch the list of advices when the component mounts.
+   * It calls the `getAllAdvice` function from the `adviceService` and sets the
+   * `advices` state with the fetched data.
+   */
   useEffect(() => {
     const fetchAdvices = async () => {
       const adviceList = await adviceService.getAllAdvice();
@@ -26,6 +33,11 @@ const HomePage = () => {
     fetchAdvices();
   }, []);
 
+  /**
+   * The `useEffect` hook is used to fetch the user's personal information when the component mounts.
+   * It retrieves the user's email from AsyncStorage, fetches the user data using the email,
+   * and sets the `userData` state with the fetched data.
+   */
   useEffect(() => {
     const fetchUser = async () => {
       const emailStored = await asyncStorageService.getInfoStorage(
@@ -51,10 +63,11 @@ const HomePage = () => {
   const weight = userData?.infoUser.weight ?? 0;
   const height = userData?.infoUser.height ?? 1;
   let bmiValue:number = 0;
-  if ( height > 0 ) {
+  if ( height > 0 && weight > 0) {
     const heightInMeters = height / 100;
     bmiValue = weight / (heightInMeters * heightInMeters);
   }
+  // Calculate BMI value
   const bmi = bmiValue.toFixed(1);
 
   const markerLeft = (getMarkerPercent(bmiValue) / 100) * BAR_WIDTH;
@@ -102,6 +115,7 @@ const HomePage = () => {
       </View>
       <Text style={styles.headerText}>Consejos:</Text>
       <FlatList
+        // list of 5 latest tips from the list of tips
         data={advices.slice(-5).reverse()}
         style={{ height: 300 }}
         ListEmptyComponent={() => (

@@ -4,6 +4,13 @@ import { InfoRecipe } from "../types/info-recipe";
 import { API_URL } from "../config";
 import { getTokenCleaned } from "../utitlity/utility";
 
+/**
+ * The function `createRecipe` asynchronously creates a new recipe by sending a POST request to an API endpoint,
+ * using a token for authorization, and returns the created recipe data. 
+  * It handles errors gracefully and logs them to the console.
+ * @param data 
+ * @returns 
+ */
 const createRecipe = async (data: CreateRecipe) => {
   const token = await getTokenCleaned();
 
@@ -35,6 +42,12 @@ const createRecipe = async (data: CreateRecipe) => {
   }
 };
 
+/**
+ * The function `deleteRecipe` asynchronously deletes a recipe by sending a DELETE request to an API endpoint,
+ * using a token for authorization, and returns the HTTP status of the response.
+ * @param recipeId 
+ * @returns 
+ */
 const deleteRecipe = async (recipeId: number) => {
   const token = await getTokenCleaned();
   try {
@@ -51,6 +64,14 @@ const deleteRecipe = async (recipeId: number) => {
   }
 };
 
+/**
+ * The function `addIngredientToRecipe` asynchronously adds an ingredient to a recipe by sending a POST request
+ * to an API endpoint, using a token for authorization, and returns a boolean indicating success or failure.
+ * @param recipeId 
+ * @param ingredientId 
+ * @param quantity 
+ * @returns 
+ */
 const addIngredientToRecipe = async (recipeId: number, ingredientId: number, quantity: number) => {
   const token = await getTokenCleaned();
   try {
@@ -69,6 +90,12 @@ const addIngredientToRecipe = async (recipeId: number, ingredientId: number, qua
   }
 };
 
+/**
+ * The function `getAllRecipesByUser` asynchronously retrieves all recipes associated with a specific user by sending a GET request to an API endpoint,
+ * using a token for authorization, and returns the recipe data.
+ * @param userId userId
+ * @returns recipe data.
+ */
 const getAllRecipesByUser = async (userId: string) => {
   const token = await getTokenCleaned();
   try {
@@ -85,6 +112,12 @@ const getAllRecipesByUser = async (userId: string) => {
   }
 };
 
+/**
+ * The function `getRecipeById` asynchronously retrieves a recipe by its ID by sending a GET request to an API endpoint,
+ * using a token for authorization, and returns the recipe data.
+ * @param recipeId 
+ * @returns recipe data
+ */
 const getRecipeById = async (recipeId: number) => {
   const token = await getTokenCleaned();
   try {
@@ -102,6 +135,13 @@ const getRecipeById = async (recipeId: number) => {
   }
 };
 
+/**
+ * The function `updateRecipe` asynchronously updates a recipe by sending a PUT request to an API endpoint,
+ * using a token for authorization, and returns the updated recipe data.
+ * @param recipeId 
+ * @param data 
+ * @returns updated recipe data
+ */
 const updateRecipe = async (recipeId: number, data: CreateRecipe): Promise<InfoRecipe> => {
   const token = await getTokenCleaned();
   try {

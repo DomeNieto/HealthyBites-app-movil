@@ -6,6 +6,12 @@ import { API_URL } from "../config";
 import { getTokenCleaned } from "../utitlity/utility";
 import { UserApiResponse } from "../types/response-interfase";
 
+/**
+ * The function `registerNewUser` asynchronously registers a new user by sending a POST request to an API endpoint,
+ * using the provided user data, and returns the HTTP status of the response.
+ * @param data 
+ * @returns 
+ */
 export const registerNewUser = async (data: userRegister) => {
   try {
     const newUserRegister = {
@@ -36,6 +42,13 @@ export const registerNewUser = async (data: userRegister) => {
   }
 };
 
+/**
+ * The function `registerLogin` asynchronously logs in a user by sending a POST request to an API endpoint,
+ * using the provided login information, and returns the HTTP status of the response.
+ * It also saves the user's token and email in AsyncStorage for future use.
+ * @param data 
+ * @returns data or null
+ */
 export const registerLogin = async (data: loginInfo) => {
   try {
     const response = await axios.post(
@@ -87,6 +100,14 @@ export const getUserByEmail = async (email: string) => {
   }
 };
 
+/**
+ * The function `updateUser` asynchronously updates a user's information by sending a PUT request to an API endpoint,
+ * using the provided user ID and updated user data, and returns the HTTP status of the response.
+ * It also deletes the user's token and email from AsyncStorage.
+ * @param userId 
+ * @param updatedUserData 
+ * @returns 
+ */
 export const updateUser = async ( userId: string, updatedUserData: userRegister) => {
   try {
     const bodyToSend = {

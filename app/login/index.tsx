@@ -13,12 +13,10 @@ const LoginPage = () => {
   const [formLogin, setFormLogin] = useState(emptyForm);
 
   /**
-   * The function `sevedUser` is an asynchronous function in TypeScript React that attempts to register
-   * a user login and displays error messages if the login fails.
-   * @param {loginInfo} user - The `user` parameter in the `sevedUser` function is of type `loginInfo`.
-   * This likely represents the information required for a user to log in, such as username and
-   * password. The function attempts to register the login information using
-   * `userService.registerLogin(user)` and handles the response accordingly.
+   * The `sevedUser` function is an asynchronous function that attempts to log in a user by sending their
+   * credentials (email and password) to a user service. If the login is successful, it navigates to the
+   * home screen. If the login fails, it shows an error message using a toast notification.
+   * @param user 
    */
   const sevedUser = async(user: loginInfo) => {
     try {
@@ -43,11 +41,10 @@ const LoginPage = () => {
   }
   
   /**
-   * The `sendForm` function validates the login form inputs and either shows an error message or
-   * attempts to log in the user.
-   * @returns The `sendForm` function is returning nothing. It performs validation on the login form
-   * inputs and either shows an error message using `Toast.show` or calls the `sevedUser` function to
-   * attempt to log in the user.
+   * The `sendForm` function is called when the user presses the "Iniciar sesión" button.
+   * It checks if the email and password fields are empty. If they are, it shows an error message using a toast notification. 
+   * If they are not empty, it calls the `sevedUser` function to attempt to log in the user.
+   * After the login attempt, it resets the form fields to their initial state.
    */
   const sendForm = () => {
     if (

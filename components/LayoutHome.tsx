@@ -6,7 +6,10 @@ import userService from "../services/user-service";
 
 const LayoutHome = () => {
   const [userName, setUserName] = useState<string>("Usuario");
-
+  /**
+   * The `useEffect` hook is used to fetch the user's name when the component mounts.
+   * It retrieves the user's email from AsyncStorage, fetches the user data using the email,
+   */
   useEffect (() => {
     const getUserName = async () => {
       try {

@@ -32,6 +32,12 @@ const NewRecipe = () => {
     setIngredients([]);
   };
 
+  /**
+   * The `useEffect` hook is used to load a recipe when the component mounts or when the `mode` or `recipeId` changes.
+   * If the mode is "edit" and a recipeId is provided, it fetches the recipe data from the server
+   * and populates the form fields with the recipe details.
+   * If the mode is "create", it clears the recipe form context.
+   */
   useEffect(() => {
     const loadRecipe = async () => {
       setIsLoading(true);
@@ -64,6 +70,10 @@ const NewRecipe = () => {
     loadRecipe();
   }, [mode, recipeId]);
 
+  /**
+   * The `isLoading` state is used to show a loading indicator while the recipe data is being fetched.
+   * If `isLoading` is true, it displays an `ActivityIndicator` in the center of the screen.
+   */
   if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "white" }}>
@@ -73,20 +83,19 @@ const NewRecipe = () => {
   }
 
   /**
-   * The `deleteIngredient` function filters out an ingredient from a list based on its ID.
-   * @param {number} ingredientId - The `ingredientId` parameter is a number that represents the unique
-   * identifier of the ingredient that needs to be deleted from the list of ingredients.
+   * The `deleteIngredient` function removes an ingredient from the list of ingredients in the recipe.
+   * It filters out the ingredient with the specified `ingredientId` and updates the state.
+   * @param {number} ingredientId - The ID of the ingredient to be deleted.
    */
   const deleteIngredient = (ingredientId: number) => {
     setIngredients(data.ingredients.filter((ing) => ing.ingredientId !== ingredientId));
   };
 
   /**
-   * The function `onSave` handles the saving of a recipe, performing validations and either creating a
-   * new recipe or updating an existing one.
-   * @returns The `onSave` function is returning either an alert message indicating a required field is
-   * missing or an error message if there was an issue saving the recipe. If the recipe is successfully
-   * saved, it will navigate to the "Recetas" screen.
+   * The `onSave` function is called when the user presses the "Guardar" button.
+   * It validates the input fields, constructs a recipe object, and either creates or updates a recipe
+   * based on the mode (create or edit).
+   * If successful, it navigates back to the "Recetas" screen and clears the form context.
    */
   const onSave = async () => {
     try {
@@ -165,6 +174,10 @@ const NewRecipe = () => {
   };
 
 
+  /**
+   * The `handleBackPress` function is called when the user presses the back button.
+   * It clears the recipe form context and navigates back to the "Recetas" screen.
+   */
   const handleBackPress = () => {
     clearRecipeFormContext();
     navigation.navigate("Recetas");

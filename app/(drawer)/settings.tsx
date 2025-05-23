@@ -7,6 +7,10 @@ import { Keyboard } from "react-native";
 import asyncStorageService from "../../services/async-storage-service";
 import { cleanEmail } from "../../utitlity/utility";
 
+/**
+ * SettingsPage is a React component that allows users to update their personal information,
+ * including name, weight, height, activity level, email, password 
+ */
 const SettingsPage = () => {
   const [data, setData] = useState({
     id: "",
@@ -23,8 +27,12 @@ const SettingsPage = () => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=\[\]{};':"\\|,.<>\/?]).{8,}$/;
 
-  /* The `useEffect` hook in the provided code snippet is used to fetch user data when the
-  `SettingsPage` component mounts for the first time. Here's a breakdown of what it does: */
+  
+  /**
+   * The `useEffect` hook is used to fetch the user's personal information when the component mounts.
+   * It retrieves the user's email from AsyncStorage, fetches the user data using the email,
+   * and sets the `data` state with the fetched data.
+   */
   useEffect(() => {
     const fetchUserData = async () => {
       const emailStored = await asyncStorageService.getInfoStorage(asyncStorageService.KEYS.userEmail);
@@ -60,13 +68,8 @@ const SettingsPage = () => {
   }, []);
 
   /**
-   * The function `handleUpdate` is responsible for validating and updating user data, displaying
-   * appropriate alerts for errors or successful updates.
-   * @returns The `handleUpdate` function is returning different alerts based on the conditions met
-   * during the update process. If any of the required fields are missing or invalid, an error alert is
-   * shown. If the email or password format is incorrect, specific error alerts are displayed. If the
-   * update operation is successful, a success alert is shown, prompting the user to log in again. If
-   * there is an error during the
+   * The `handleUpdate` function is called when the user presses the "Actualizar" button.
+   * It validates the input fields and checks if the email and password match the specified regex patterns.
    */
   const handleUpdate = async () => {
     if (!data.name.trim() || data.height == 0 || data.weight == 0 || !data.activityLevel || !data.email.trim() || !data.password.trim() || !data.sex || data.age === 0) {

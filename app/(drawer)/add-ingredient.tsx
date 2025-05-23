@@ -10,6 +10,10 @@ import { Keyboard } from "react-native";
 
 type AddIngredientRouteProp = RouteProp<DrawerParamList, "addIngredient">;
 
+/**
+ * AddIngredient is a React component that allows users to add ingredients to a recipe.
+ * @returns 
+ */
 const AddIngredient = () => {
   const { addIngredient } = useRecipe();
   const [ingredientsList, setIngredientsList] = useState<{ id: number; name: string }[]>([]);
@@ -18,11 +22,18 @@ const AddIngredient = () => {
   const [quantity, setQuantity] = useState("");
   const navigation = useNavigation<DrawerNavigationProp<DrawerParamList>>();
 
+  /**
+   * The `useRoute` hook is used to access the route parameters passed to this screen.
+   * It retrieves the `mode` and `recipeId` from the route parameters.
+   */
   const route = useRoute<AddIngredientRouteProp>();
   const { mode, recipeId } = route.params;
 
-  /* The `useEffect` hook is used to fetch all ingredients from the ingredient service when the
-  component mounts. It sets the fetched ingredients to the `all` state variable. */
+  /**
+   * The `useEffect` hook is used to fetch the list of ingredients when the component mounts.
+   * It calls the `getAllIngredients` function from the `ingredientService` and sets the
+   * `ingredientsList` state with the fetched data.
+   */
   useEffect(() => {
     const fetchIngredients = async () => {
       const ingredients = await ingredientService.getAllIngredients();
@@ -36,11 +47,15 @@ const AddIngredient = () => {
 
   }, []);
 
-  /*  filtering the `all` array based on the `ingredient` value. */
+  /*  filtering the `all` array based on the ingredient name  */
   const filtered = ingredientsList.filter((i) => i.name.toLowerCase().includes(filter.toLowerCase()));
+  
+
   /**
-   * The `onAdd` function adds a new ingredient to a recipe if a selected ingredient and quantity are
-   * provided.
+   * The `onAdd` function is called when the user presses the "Añadir" button.
+   * It checks if an ingredient is selected and a quantity is provided.
+   * If so, it calls the `addIngredient` function from the `RecipeContext` to add the ingredient
+   * to the recipe and navigates back to the "NewRecipe" screen.
    */
   const onAdd = () => {
     if (selected && quantity) {
@@ -55,6 +70,7 @@ const AddIngredient = () => {
       setSelected(null);
     }
   };
+
 
   return (
     <View style={styles.container}>

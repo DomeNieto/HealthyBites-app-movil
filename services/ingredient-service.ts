@@ -11,6 +11,11 @@ import { getTokenCleaned } from "../utitlity/utility";
  */
 type Ingredient = { id: number; name: string };
 
+/**
+ * The `getAllIngredients` function asynchronously fetches a list of active ingredients from an API
+ * endpoint, using a token for authorization, and returns the data.
+ * @returns An array of `Ingredient` objects.
+ */
 const getAllIngredients = async () => {
   const token = await getTokenCleaned();
   console.log("Token enviado:", token);

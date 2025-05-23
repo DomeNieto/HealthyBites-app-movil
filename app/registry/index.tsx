@@ -5,6 +5,10 @@ import { useRouter } from "expo-router";
 import { registerNewUser } from "../../services/user-service";
 import { Keyboard } from "react-native";
 
+
+
+// The type `RegisterModalProps` defines the props that the `RegisterModal` component will receive.
+// It includes a single prop `onClose`, which is a function that will be called when the modal is closed.
 type RegisterModalProps = {
   onClose: () => void;
 };
@@ -27,10 +31,9 @@ const RegisterModal = ({ onClose }: RegisterModalProps) => {
   const router = useRouter();
 
   /**
-   * The function `handleNext` is used to handle the navigation and validation logic for a multi-step
-   * @returns The `handleNext` function returns different things based on the conditions met during its
-   * execution. Here are the possible return scenarios: name, weight, height, activityLevel, age, sex, email,
-   * password, and the final registration process.
+   * The `handleNext` function is called when the user presses the "Siguiente" button.
+   * It validates the input data based on the current step and updates the `step` state to move to the next step.
+   * @returns 
    */
   const handleNext = async () => {
     if (data[step as keyof typeof data] === "" || data[step as keyof typeof data] === 0) {
@@ -93,8 +96,11 @@ const RegisterModal = ({ onClose }: RegisterModalProps) => {
     }
   };
 
-  /*  It is used to render different input fields based on the value of the `step` variable. The function uses a
-  switch statement to determine which input fields to display based on the current step. */
+  /**
+   * The `renderContent` function returns the content to be displayed in the modal based on the current step.
+   * It renders different input fields and labels for each step of the registration process.
+   * @returns 
+   */
   const renderContent = () => {
     switch (step) {
       case "name":

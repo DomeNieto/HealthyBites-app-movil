@@ -1,7 +1,5 @@
 import { IngredientInfo } from "./info-recipe";
 
-/* These TypeScript types are defining the structure of objects related to creating recipes and
-handling recipe responses. Here's a breakdown of each interface: */
 export type CreateRecipe = {
   name: string;
   preparation: string;

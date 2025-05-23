@@ -11,9 +11,10 @@ export default function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
-/* The `useEffect` hook in the provided code snippet is used to perform side effects in a functional
-component. In this case, the `useEffect` hook is being used to load fonts asynchronously and check
-for a user token in the async storage. */
+  /**
+   * The `useEffect` hook is used to load custom fonts and check if the user is already logged in.
+   * If the user token exists in AsyncStorage, it navigates to the home screen.
+   */
   useEffect(() => {
     const loadFont = async () => {
       try {
@@ -30,10 +31,6 @@ for a user token in the async storage. */
     loadFont();
   }, []);
 
-  /**
-   * The `handleLogin` function is responsible for handling the login process. It retrieves the user
-   * token from async storage and navigates to the home screen if the token exists.
-   */
   if (!fontsLoaded) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>

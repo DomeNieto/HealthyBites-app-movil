@@ -21,7 +21,7 @@ const saveItemStorage = async (key:string, value: string) => {
   try {
     if (value !== null) {
       const jsonValue = JSON.stringify(value);
-      await AsyncStorage.setItem("user-token", jsonValue);
+      await AsyncStorage.setItem(key, jsonValue);
     }
   } catch (e) {
     console.log(`AsyncStorage Error: ${e}`);

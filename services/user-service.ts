@@ -46,7 +46,7 @@ export const registerLogin = async (data: loginInfo) => {
       }
     );
 
-    if (response.status === 200) {
+    if (response.status == 200) {
       await asyncStorageService.saveItemStorage(
         asyncStorageService.KEYS.userToken,
         (response.data as { accessToken: string }).accessToken

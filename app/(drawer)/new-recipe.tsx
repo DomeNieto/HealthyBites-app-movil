@@ -166,6 +166,7 @@ const NewRecipe = () => {
 
 
   const handleBackPress = () => {
+    clearRecipeFormContext();
     navigation.navigate("Recetas");
   };
 

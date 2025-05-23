@@ -79,7 +79,7 @@ function MyDrawer() {
             headerStyle: {
               backgroundColor: "#EDDCFF",
             },
-            headerTitle: () => "Recetas",
+            headerTitle: "Recetas",
           }}
         />
         <Drawer.Screen

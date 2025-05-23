@@ -10,6 +10,7 @@ import NewRecipe from "./new-recipe";
 import AddIngredient from "./add-ingredient";
 import { RecipeProvider } from "../../context/RecipeContext";
 import LogoutScreen from "./logout";
+import LayoutHome from "../../components/LayoutHome";
 
 const Drawer = createDrawerNavigator();
 
@@ -29,6 +30,7 @@ function MyDrawer() {
             drawerIcon: () => (
               <MaterialIcons name="home-filled" size={24} color="black" />
             ),
+            headerTitle: () => <LayoutHome />,
           }}
         />
         <Drawer.Screen
@@ -77,7 +79,7 @@ function MyDrawer() {
             headerStyle: {
               backgroundColor: "#EDDCFF",
             },
-            headerTitle: "Recetas",
+            headerTitle: () => "Recetas",
           }}
         />
         <Drawer.Screen

@@ -14,7 +14,6 @@ const BAR_WIDTH = 300;
 const HomePage = () => {
   const [userData, setUserData] = useState<InfoUser | null>(null);
   const [advices, setAdvices] = useState<InfoAdvice[]>([]);
-  const [userName, setUserName] = useState<string>("Usuario");
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -44,22 +43,10 @@ const HomePage = () => {
       const user = await userService.getUserByEmail(email);
       if (user) {
         setUserData(user.data);
-        setUserName(user.data.name);
       }
     };
     fetchUser();
   }, []);
-
-  // TODO: Poner en un componente y llamarlo desde el drawer.
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerTitle: () => (
-        <Text style={{ fontSize: 17, fontWeight: "bold", color: "black" }}>
-          Hola, {userName}
-        </Text>
-      ),
-    });
-  }, [navigation, userName]);
 
   const weight = userData?.infoUser.weight ?? 0;
   const height = userData?.infoUser.height ?? 1;
@@ -115,13 +102,13 @@ const HomePage = () => {
       </View>
       <Text style={styles.headerText}>Consejos:</Text>
       <FlatList
-        data={advices}
+        data={advices.slice(-5).reverse()}
         style={{ height: 300 }}
         ListEmptyComponent={() => (
           <View
-            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+            style={styles.listEmptyContainer}
           >
-            <Text style={{ fontSize: 18, color: "#000" }}>
+            <Text style={{ fontSize: 18 }}>
               No hay consejos disponibles 🥲
             </Text>
           </View>
@@ -140,6 +127,11 @@ const HomePage = () => {
 export default HomePage;
 
 const styles = StyleSheet.create({
+  listEmptyContainer: {
+    flex: 1, 
+    justifyContent: "center", 
+    alignItems: "center" 
+  },
   bmiBarContainer: {
     flexDirection: "row",
     width: BAR_WIDTH,

@@ -1,5 +1,4 @@
 import axios from "axios";
-import { getToken } from "./async-storage-service";
 import { InfoAdvice } from "../types/info-advice";
 import { API_URL } from "../config";
 import { getTokenCleaned } from "../utitlity/utility";
@@ -24,7 +23,7 @@ const getAllAdvice = async () => {
     );
     return response.data.data;
   } catch (error) {
-    console.error("getAllIngredients unexpected error:", error);
+    console.error("getAllAdvices unexpected error:", error);
     return [];
   }
 };

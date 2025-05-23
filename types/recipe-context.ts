@@ -1,6 +1,7 @@
 import { CreateRecipe, IngredientInfoRecipe } from "./create-recipe";
 import { InfoRecipe } from "./info-recipe";
 
+/* This interface defines the functions returned by the RecipeContext context. */
 export interface RecipeContextType {
   data: CreateRecipe;
   setName: (name: string) => void;

@@ -12,26 +12,43 @@ type AddIngredientRouteProp = RouteProp<DrawerParamList, "addIngredient">;
 
 const AddIngredient = () => {
   const { addIngredient } = useRecipe();
-  const [all, setAll] = useState<{ id: number; name: string }[]>([]);
+  const [ingredientsList, setIngredientsList] = useState<{ id: number; name: string }[]>([]);
   const [filter, setFilter] = useState("");
   const [selected, setSelected] = useState<{ id: number; name: string } | null>(null);
   const [quantity, setQuantity] = useState("");
+  const navigation = useNavigation<DrawerNavigationProp<DrawerParamList>>();
 
   const route = useRoute<AddIngredientRouteProp>();
   const { mode, recipeId } = route.params || {};
 
+  /* The `useEffect` hook is used to fetch all ingredients from the ingredient service when the
+  component mounts. It sets the fetched ingredients to the `all` state variable. */
   useEffect(() => {
-    ingredientService.getAllIngredients().then(setAll);
+    const fetchIngredients = async () => {
+      const ingredients = await ingredientService.getAllIngredients();
+      if (!ingredients) {
+        console.error("No se encontraron ingredientes");
+        return;
+      }
+      setIngredientsList(ingredients);
+    };
+    fetchIngredients();
+
   }, []);
 
-  const filtered = all.filter((i) => i.name.toLowerCase().includes(filter.toLowerCase()));
-  const navigation = useNavigation<DrawerNavigationProp<DrawerParamList>>();
+  /*  filtering the `all` array based on the `ingredient` value. */
+  const filtered = ingredientsList.filter((i) => i.name.toLowerCase().includes(filter.toLowerCase()));
+  /**
+   * The `onAdd` function adds a new ingredient to a recipe if a selected ingredient and quantity are
+   * provided.
+   */
   const onAdd = () => {
     if (selected && quantity) {
       addIngredient({
         ingredientId: selected.id,
         name: selected.name,
         quantity: Number(quantity),
+        active: true,
       });
       navigation.navigate("NewRecipe", { mode, recipeId });
       setQuantity("");

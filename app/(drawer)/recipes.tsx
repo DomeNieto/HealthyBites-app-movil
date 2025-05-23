@@ -9,80 +9,62 @@ import { useRecipe } from "../../context/RecipeContext";
 import { useNavigation } from "expo-router";
 import { DrawerNavigationProp } from "@react-navigation/drawer";
 import { DrawerParamList } from "../../types/navigation";
+import * as Progress from "react-native-progress";
+import { calculateRecommendedCalories, cleanEmail } from "../../utitlity/utility";
 import userService from "../../services/user-service";
-import * as Progress from 'react-native-progress';
-
+import asyncStorageService from "../../services/async-storage-service";
 
 const RecipesPage = () => {
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const { recipesData, fetchRecipes, deleteRecipeInList } = useRecipe();
   const [recommendedDailyCalories, setRecommendedDailyCalories] = useState(1500);
   const navigation = useNavigation<DrawerNavigationProp<DrawerParamList>>();
-  
+
+  /* The above code snippet is a `useEffect` hook in a TypeScript React component. It is fetching
+  recipes and then calculating the recommended daily calories for a user based on their personal
+  information such as sex, weight, height, age, and activity level. */
   useEffect(() => {
     fetchRecipes();
-    // console.log('recipesData IDs:', recipesData.map(r => r.id));
-    const calculateRecommendedCalories = async () => {
+    const getCalories = async () => {
       try {
-        const fullInfo = await userService.getInfoUser();
-
-        if (!fullInfo || !fullInfo.infoUser) {
-          throw new Error("Datos de usuario incompletos o inválidos");
+        const emailStored = await asyncStorageService.getInfoStorage(asyncStorageService.KEYS.userEmail);
+        if (!emailStored) {
+          console.error("Error", "Email no encontrado.");
+          return;
+        }
+        const email = cleanEmail(emailStored);
+        if (!email) {
+          console.error("Error", "Email no válido.");
+          return;
         }
 
-        const { sex, weight, height, age, activityLevel } = fullInfo.infoUser;
-
-        const weightNum = Number(weight);
-        const heightNum = Number(height);
-        const ageNum = Number(age);
-        const activityLevelNormalized = activityLevel?.toLowerCase();
-        const sexNormalized = sex?.toLowerCase();
-
-        if (
-          !sexNormalized ||
-          isNaN(weightNum) ||
-          isNaN(heightNum) ||
-          isNaN(ageNum) ||
-          !activityLevelNormalized
-        ) {
-          throw new Error("Datos de usuario incompletos o inválidos");
+        const fullInfo = await userService.getUserByEmail(email);
+        if (!fullInfo) {
+          console.error("Error", "Usuario no encontrado.");
+          return;
         }
-
-        const factoresActividad: Record<string, number> = {
-          baja: 1.2,
-          moderada: 1.55,
-          alta: 1.725,
-        };
-
-        const factorActividad = factoresActividad[activityLevelNormalized] || 1.2;
-
-        let tmb = 0;
-        if (sexNormalized === "femenino") {
-          tmb = 10 * weightNum + 6.25 * heightNum - 5 * ageNum - 161;
-        } else {
-          tmb = 10 * weightNum + 6.25 * heightNum - 5 * ageNum + 5;
+        const totalCaloriesRecomended = await calculateRecommendedCalories(fullInfo);
+        if (totalCaloriesRecomended) {
+          setRecommendedDailyCalories(totalCaloriesRecomended);
         }
-
-        const totalCaloriesRecomendadas = tmb * factorActividad;
-        setRecommendedDailyCalories(totalCaloriesRecomendadas);
       } catch (error) {
-        console.error("Error al obtener info usuario o calcular calorías:", error);
-        setRecommendedDailyCalories(1500); 
+        console.log(error);
       }
     };
-
-
-
-    calculateRecommendedCalories();
+    getCalories();
   }, []);
 
+  /* The `totalCalories` constant is calculating the total number of calories for the selected recipes. */
   const totalCalories = recipesData
-  .filter((recipe) => selectedIds.includes(recipe.id))
-  .reduce(
-    (sumRecipes, recipe) => sumRecipes + recipe.ingredients.reduce((sumIngs, ing) => sumIngs + ing.quantityCalories, 0),
-    0
-  );
+    .filter((recipe) => selectedIds.includes(recipe.id))
+    .reduce((sumRecipes, recipe) => sumRecipes + recipe.ingredients.reduce((sumIngs, ing) => sumIngs + ing.quantityCalories, 0), 0);
 
+  /**
+   * The `toggleSelect` function toggles the selection of an item with the given ID in a list of selected
+   * IDs.
+   * @param {number} id - The `id` parameter in the `toggleSelect` function is a number that represents
+   * the identifier of an item that you want to toggle the selection status for.
+   */
   const toggleSelect = (id: number) => {
     const isSelected = selectedIds.includes(id);
     setSelectedIds(isSelected ? selectedIds.filter((x) => x !== id) : [...selectedIds, id]);
@@ -90,14 +72,21 @@ const RecipesPage = () => {
 
   const progress = Math.min(totalCalories / recommendedDailyCalories, 1);
 
-  let progressColor = "#4caf50"; 
+  let progressColor = "#4caf50";
 
   if (totalCalories > recommendedDailyCalories) {
-    progressColor = "#f44336"; 
+    progressColor = "#f44336";
   } else if (totalCalories > recommendedDailyCalories * 0.75) {
     progressColor = "#ff9800";
   }
 
+  /**
+   * The function `deleteRecipe` prompts the user with a confirmation alert before deleting a recipe
+   * with a specific ID.
+   * @param {number} id - The `id` parameter in the `deleteRecipe` function is the unique identifier of
+   * the recipe that you want to delete. This identifier is used to locate and delete the specific
+   * recipe from the list of recipes.
+   */
   const deleteRecipe = async (id: number) => {
     const message = "¿Está seguro que quiere eliminar el registro con ID: " + id + "?";
     Alert.alert("Alert", message, [
@@ -118,6 +107,11 @@ const RecipesPage = () => {
     ]);
   };
 
+  /* The above code is a TypeScript React component that renders a recipe item. It calculates the total
+  calories of the recipe based on the ingredients, checks if the recipe is selected, displays the
+  recipe name, ingredients, preparation steps, edit and delete buttons, and the total number of
+  calories. The component also includes functionality to toggle the selection of the recipe, edit
+  the recipe, and delete the recipe. */
   const renderItem = ({ item }: { item: InfoRecipe }) => {
     const recipeCal = item.ingredients.reduce((sum, ing) => sum + ing.quantityCalories, 0);
     const selected = selectedIds.includes(item.id);
@@ -135,7 +129,7 @@ const RecipesPage = () => {
         <View style={styles.ingredientsList}>
           {item.ingredients.map((ing) => (
             <Text key={ing.id} style={styles.ingredientName}>
-              {ing.quantity}  {ing.name}  
+              {ing.quantity} {ing.name}
             </Text>
           ))}
         </View>
@@ -166,7 +160,7 @@ const RecipesPage = () => {
           <Text>Total Calorías:</Text>
           <Text style={styles.headerValue}>{totalCalories}</Text>
         </View>
-        <Pressable style={styles.createButton}  onPress={() => navigation.navigate({ name: "NewRecipe", params: {} }) }>
+        <Pressable style={styles.createButton} onPress={() => navigation.navigate({ name: "NewRecipe", params: {} })}>
           <Text style={styles.createButtonText}>+ Crear</Text>
         </Pressable>
       </View>
@@ -187,24 +181,16 @@ const RecipesPage = () => {
           </View>
         )}
       />
-      <View style={{ alignItems: 'center', marginTop: 20 }}>
-      <Progress.Bar
-        progress={progress}
-        width={300}
-        color={progressColor}
-        borderRadius={10}
-        height={20}
-        unfilledColor="#ddd"
-        borderWidth={0}
-      />
-      <Text style={[styles.progressText, { color: progressColor }]}>
-        {totalCalories > recommendedDailyCalories
-          ? `Has excedido tu límite calórico diario (${recommendedDailyCalories.toFixed(0)} cal)`
-          : totalCalories > recommendedDailyCalories * 0.75
-          ? `Casi alcanzas tu límite diario (${recommendedDailyCalories.toFixed(0)} cal)`
-          : `Estás dentro de tu límite calórico diario (${recommendedDailyCalories.toFixed(0)} cal)`}
-      </Text>
-    </View>
+      <View style={{ alignItems: "center", marginTop: 20 }}>
+        <Progress.Bar progress={progress} width={300} color={progressColor} borderRadius={10} height={20} unfilledColor="#ddd" borderWidth={0} />
+        <Text style={[styles.progressText, { color: progressColor }]}>
+          {totalCalories > recommendedDailyCalories
+            ? `Has excedido tu límite calórico diario (${recommendedDailyCalories.toFixed(0)} cal)`
+            : totalCalories > recommendedDailyCalories * 0.75
+            ? `Casi alcanzas tu límite diario (${recommendedDailyCalories.toFixed(0)} cal)`
+            : `Estás dentro de tu límite calórico diario (${recommendedDailyCalories.toFixed(0)} cal)`}
+        </Text>
+      </View>
     </View>
   );
 };
@@ -213,9 +199,9 @@ export default RecipesPage;
 
 const styles = StyleSheet.create({
   caloriesText: {
-    alignSelf: "flex-end", 
-    marginTop: -30, 
-    marginBottom: 10 
+    alignSelf: "flex-end",
+    marginTop: -30,
+    marginBottom: 10,
   },
   buttomEdit: {
     margin: 5,

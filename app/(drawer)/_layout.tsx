@@ -6,13 +6,15 @@ import Entypo from "@expo/vector-icons/Entypo";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import RececipesPage from "./recipes";
 import SettingsPage from "./settings";
-import LogoutScreen from "./logout";
 import NewRecipe from "./new-recipe";
 import AddIngredient from "./add-ingredient";
 import { RecipeProvider } from "../../context/RecipeContext";
+import LogoutScreen from "./logout";
 
 const Drawer = createDrawerNavigator();
 
+/* The `MyDrawer` function is defining a React component that serves as a navigation drawer for a React
+application using React Navigation. */
 function MyDrawer() {
   return (
     <RecipeProvider>

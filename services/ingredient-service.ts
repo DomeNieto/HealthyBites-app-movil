@@ -1,7 +1,6 @@
 import axios from "axios";
-import { getToken } from "./async-storage-service";
-
-const API_URL = "http://192.168.0.18:8082/api/v1/ingredients/active";
+import { API_URL } from "../config";
+import { getTokenCleaned } from "../utitlity/utility";
 
 /**
  * The function `getAllIngredients` asynchronously fetches data from an API URL and returns an array of
@@ -13,15 +12,14 @@ const API_URL = "http://192.168.0.18:8082/api/v1/ingredients/active";
 type Ingredient = { id: number; name: string };
 
 const getAllIngredients = async () => {
-  const token = await getToken();
-  const cleanedToken = token!.replace(/['"]+/g, "");
-
+  const token = await getTokenCleaned();
+  console.log("Token enviado:", token);
   try {
     const res = await axios.get<{ data: Ingredient[] }>(
-      `${API_URL}`,
+      `${API_URL}api/v1/ingredients/active`,
       {
         headers: {
-          Authorization: `Bearer ${cleanedToken}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );

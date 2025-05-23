@@ -6,11 +6,10 @@ import { InfoAdvice } from "../../types/info-advice";
 import { useNavigation } from "expo-router";
 import userService from "../../services/user-service";
 import adviceService from "../../services/advice-service";
-import { getBmiCategory } from "../../utitlity/utility";
+import { cleanEmail, getBmiCategory, getBmiImage, getMarkerPercent } from "../../utitlity/utility";
 
 const BAR_WIDTH = 300;
-const IMC_MIN = 10;
-const IMC_MAX = 40;
+
 
 const HomePage = () => {
   const [userData, setUserData] = useState<InfoUser | null>(null);
@@ -30,15 +29,19 @@ const HomePage = () => {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const emailStored = await asyncStorageService.getUser(
+      const emailStored = await asyncStorageService.getInfoStorage(
         asyncStorageService.KEYS.userEmail
       );
-      const cleanEmail = emailStored?.replace(/^"(.*)"$/, "$1");
-      if (!cleanEmail) {
-        console.error("Email no encontrado");
+      if (!emailStored) {
+        console.error("Error al obtener el email de AsyncStorage");
         return;
       }
-      const user = await userService.getUserByEmail(cleanEmail);
+      const email = cleanEmail(emailStored);
+      if (!email) {
+        console.error("Error al tipar el email");
+        return;
+      }
+      const user = await userService.getUserByEmail(email);
       if (user) {
         setUserData(user.data);
         setUserName(user.data.name);
@@ -47,6 +50,7 @@ const HomePage = () => {
     fetchUser();
   }, []);
 
+  // TODO: Poner en un componente y llamarlo desde el drawer.
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: () => (
@@ -59,20 +63,13 @@ const HomePage = () => {
 
   const weight = userData?.infoUser.weight ?? 0;
   const height = userData?.infoUser.height ?? 1;
-  const bmiValue = height > 0 ? weight / (height / 100) ** 2 : 0;
+  let bmiValue:number = 0;
+  if ( height > 0 ) {
+    const heightInMeters = height / 100;
+    bmiValue = weight / (heightInMeters * heightInMeters);
+  }
   const bmi = bmiValue.toFixed(1);
 
-  const getBmiImage = (val: number) => {
-    if (val < 18.5) return require("../../assets/images/delgado.png");
-    if (val < 25) return require("../../assets/images/normal.png");
-    return require("../../assets/images/gordito.png");
-  };
-
-  const getMarkerPercent = (val: number) => {
-    if (val < IMC_MIN) return 0;
-    if (val > IMC_MAX) return 100;
-    return ((val - IMC_MIN) / (IMC_MAX - IMC_MIN)) * 100;
-  };
   const markerLeft = (getMarkerPercent(bmiValue) / 100) * BAR_WIDTH;
 
   return (

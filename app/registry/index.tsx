@@ -26,6 +26,12 @@ const RegisterModal = ({ onClose }: RegisterModalProps) => {
 
   const router = useRouter();
 
+  /**
+   * The function `handleNext` is used to handle the navigation and validation logic for a multi-step
+   * @returns The `handleNext` function returns different things based on the conditions met during its
+   * execution. Here are the possible return scenarios: name, weight, height, activityLevel, age, sex, email,
+   * password, and the final registration process.
+   */
   const handleNext = async () => {
     if (data[step as keyof typeof data] === "" || data[step as keyof typeof data] === 0) {
       Alert.alert("Campo vacío", "Por favor, complete este campo antes de continuar");
@@ -75,8 +81,6 @@ const RegisterModal = ({ onClose }: RegisterModalProps) => {
           sex: data.sex,
         },
       };
-
-      console.log(JSON.stringify(newUser));
       const status = await registerNewUser(newUser);
       console.log(status);
       if (status === 201) {
@@ -89,6 +93,8 @@ const RegisterModal = ({ onClose }: RegisterModalProps) => {
     }
   };
 
+  /*  It is used to render different input fields based on the value of the `step` variable. The function uses a
+  switch statement to determine which input fields to display based on the current step. */
   const renderContent = () => {
     switch (step) {
       case "name":
@@ -101,12 +107,12 @@ const RegisterModal = ({ onClose }: RegisterModalProps) => {
       case "height":
         return (
           <>
-            <Text style={styles.label}>... Indícanos tu Altura</Text>
+            <Text style={styles.label}>... Indícanos tu Altura en centímetros</Text>
 
             <TextInput
               style={styles.input}
               value={data.height.toString()}
-              onChangeText={(txt) => setData((prev) => ({ ...prev, height: parseFloat(txt) }))}
+              onChangeText={(txt) => setData((prev) => ({ ...prev, height: txt ? parseInt(txt) : 0 }))}
               placeholder="e.g. 170"
               keyboardType="number-pad"
               returnKeyType="done"
@@ -121,7 +127,7 @@ const RegisterModal = ({ onClose }: RegisterModalProps) => {
             <TextInput
               style={styles.input}
               value={data.weight.toString()}
-              onChangeText={(txt) => setData((prev) => ({ ...prev, weight: parseFloat(txt) }))}
+              onChangeText={(txt) => setData((prev) => ({ ...prev, weight: txt ? parseInt(txt) : 0 }))}
               placeholder="70"
               keyboardType="number-pad"
               returnKeyType="done"
@@ -148,7 +154,7 @@ const RegisterModal = ({ onClose }: RegisterModalProps) => {
             <TextInput
               style={styles.input}
               value={data.age.toString()}
-              onChangeText={(txt) => setData((prev) => ({ ...prev, age: parseInt(txt) || 0 }))}
+              onChangeText={(txt) => setData((prev) => ({ ...prev, age: txt ? parseInt(txt) : 0 }))}
               placeholder="Ej: 25"
               keyboardType="number-pad"
               returnKeyType="done"

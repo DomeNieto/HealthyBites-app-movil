@@ -1,31 +1,39 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Button, Pressable } from "react-native";
 import { Link } from "expo-router";
 import { loadFonts } from "../assets/fonts/fonts";
 import ModalRegistro from "./registry";
 import asyncStorageService from "../services/async-storage-service";
 import { router } from "expo-router";
+import { get } from "axios";
 
 export default function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
+/* The `useEffect` hook in the provided code snippet is used to perform side effects in a functional
+component. In this case, the `useEffect` hook is being used to load fonts asynchronously and check
+for a user token in the async storage. */
   useEffect(() => {
-    loadFonts()
-      .then(() => {
-        setFontsLoaded(true);
-        return asyncStorageService.getUser(asyncStorageService.KEYS.userToken);
-      })
-      .then((token) => {
+    const loadFont = async () => {
+      try {
+        await loadFonts();
+        const token = await asyncStorageService.getInfoStorage(asyncStorageService.KEYS.userToken);
         if (token) {
           router.replace("/(drawer)/home");
         }
-      })
-      .catch((err) => {
-        console.error("Error cargando fuentes o token:", err);
-      });
+        setFontsLoaded(true);
+      } catch (error) {
+        console.error("Error loading fonts or when get inforation user:", error);
+      }
+    }
+    loadFont();
   }, []);
 
+  /**
+   * The `handleLogin` function is responsible for handling the login process. It retrieves the user
+   * token from async storage and navigates to the home screen if the token exists.
+   */
   if (!fontsLoaded) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>

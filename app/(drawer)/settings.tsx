@@ -4,9 +4,12 @@ import { Picker } from "@react-native-picker/picker";
 import userService from "../../services/user-service";
 import { useRouter } from "expo-router";
 import { Keyboard } from "react-native";
+import asyncStorageService from "../../services/async-storage-service";
+import { cleanEmail } from "../../utitlity/utility";
 
 const SettingsPage = () => {
   const [data, setData] = useState({
+    id: "",
     name: "",
     weight: 0.0,
     height: 0.0,
@@ -24,20 +27,33 @@ const SettingsPage = () => {
   `SettingsPage` component mounts for the first time. Here's a breakdown of what it does: */
   useEffect(() => {
     const fetchUserData = async () => {
-      const userData = await userService.getInfoUser();
-      if (userData) {
-        setData({
-          name: userData.name || "",
-          weight: userData.infoUser?.weight || 0,
-          height: userData.infoUser?.height || 0,
-          activityLevel: userData.infoUser?.activityLevel || "",
-          sex: userData.infoUser?.sex || "",
-          age: userData.infoUser?.age || 0,
-          email: "",
-          password: "",
-        });
-        console.log("Datos del usuario:", userData);
+      const emailStored = await asyncStorageService.getInfoStorage(asyncStorageService.KEYS.userEmail);
+      if (!emailStored) {
+        console.error("Error al obtener el email de AsyncStorage");
+        return;
       }
+      const email = cleanEmail(emailStored);
+      if (!email) {
+        console.error("Error al tipar el email");
+        return;
+      }
+
+      const userRes = await userService.getUserByEmail(email);
+      if (!userRes) {
+        console.error("Usuario no encontrado");
+        return;
+      }
+      setData({
+        id: userRes.data.id.toString(),
+        name: userRes.data.name,
+        weight: userRes.data.infoUser.weight,
+        height: userRes.data.infoUser.height,
+        activityLevel: userRes.data.infoUser.activityLevel,
+        email: "",
+        password: "",
+        sex: userRes.data.infoUser.sex,
+        age: userRes.data.infoUser.age,
+      });
     };
 
     fetchUserData();
@@ -69,7 +85,7 @@ const SettingsPage = () => {
     }
 
     try {
-      const responseStatus = await userService.updateUser({
+      const responseStatus = await userService.updateUser(data.id, {
         name: data.name,
         email: data.email,
         password: data.password,

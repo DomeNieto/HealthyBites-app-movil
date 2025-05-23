@@ -1,3 +1,4 @@
+import React from "react";
 import { FlatList, Pressable, StyleSheet, Text, View, TextInput, Alert } from "react-native";
 import recipesService from "../../services/recipe-service";
 import userService from "../../services/user-service";
@@ -11,79 +12,100 @@ import { DrawerParamList } from "../../types/navigation";
 import { InfoRecipe } from "../../types/info-recipe";
 import { DrawerNavigationProp } from "@react-navigation/drawer";
 import { Keyboard } from "react-native";
+import asyncStorageService from "../../services/async-storage-service";
+import { cleanEmail } from "../../utitlity/utility";
 
+// The `NewRecipe` component is a React Native screen that allows users to create or edit a recipe.
 const NewRecipe = () => {
   const { data, setName, setPreparation, resetRecipe, addRecipe, setIngredients, updateRecipeInList } = useRecipe();
+  /* The line `const navigation = useNavigation<DrawerNavigationProp<DrawerParamList>>();` is using the
+  `useNavigation` hook from React Navigation to get the navigation object specific to the Drawer
+  navigation. */
   const navigation = useNavigation<DrawerNavigationProp<DrawerParamList>>();
   type NewRecipeRouteProp = RouteProp<DrawerParamList, "NewRecipe">;
   const route = useRoute<NewRecipeRouteProp>();
   const { mode, recipeId } = route.params || {};
 
-  useEffect(() => {
-    const loadRecipeToEdit = async () => {
-      if (mode === "edit" && recipeId) {
+  useFocusEffect(
+    useCallback(() => {
+      if (mode === "edit" && recipeId && data.ingredients.length === 0) {
         try {
-          const res = await recipesService.getRecipeById(recipeId);
-          if (res?.data) {
-            setName(res.data.name);
-            setPreparation(res.data.preparation);
-
-            const formattedIngredients = res.data.ingredients.map((ing: any) => ({
-              ingredientId: ing.id,
-              name: ing.name,
-              quantity: ing.quantity,
-              quantityCalories: ing.quantityCalories,
-            }));
-
-            setIngredients(formattedIngredients);
-          }
+          const fetchInfo = async () => {
+            const res = await recipesService.getRecipeById(recipeId);
+            if (res?.data) {
+              setName(res.data.name);
+              setPreparation(res.data.preparation);
+              const formattedIngredients = res.data.ingredients.map((ing: any) => ({
+                ingredientId: ing.id,
+                name: ing.name,
+                quantity: ing.quantity,
+                active: ing.active,
+                quantityCalories: ing.quantityCalories,
+              }));
+              setIngredients(formattedIngredients);
+            }
+          };
+          fetchInfo();
         } catch (err) {
           console.error("Error al cargar receta:", err);
         }
       }
-    };
-
-    loadRecipeToEdit();
-  }, [mode, recipeId]);
-
-  useFocusEffect(
-    useCallback(() => {
-      if (mode === "create") {
-        return () => {
-          resetRecipe();
-        };
-      }
-    }, [mode])
+    }, [mode, recipeId, data.ingredients.length, setName, setPreparation, setIngredients])
   );
 
+  /**
+   * The `deleteIngredient` function filters out an ingredient from a list based on its ID.
+   * @param {number} ingredientId - The `ingredientId` parameter is a number that represents the unique
+   * identifier of the ingredient that needs to be deleted from the list of ingredients.
+   */
   const deleteIngredient = (ingredientId: number) => {
     setIngredients(data.ingredients.filter((ing) => ing.ingredientId !== ingredientId));
   };
 
+  /**
+   * The function `onSave` handles the saving of a recipe, performing validations and either creating a
+   * new recipe or updating an existing one.
+   * @returns The `onSave` function is returning either an alert message indicating a required field is
+   * missing or an error message if there was an issue saving the recipe. If the recipe is successfully
+   * saved, it will navigate to the "Recetas" screen.
+   */
   const onSave = async () => {
     try {
       if (!data.name.trim()) {
         Alert.alert("Campo requerido", "El nombre de la receta es obligatorio.");
         return;
       }
-
       if (!data.preparation.trim()) {
         Alert.alert("Campo requerido", "La preparación es obligatoria.");
         return;
       }
-
       if (data.ingredients.length === 0) {
         Alert.alert("Campo requerido", "Debe añadir al menos un ingrediente.");
         return;
       }
-      const idUser = (await userService.getInfoUser()).id;
 
+      const emailStored = await asyncStorageService.getInfoStorage(asyncStorageService.KEYS.userEmail);
+      if (!emailStored) {
+        console.error("Error", "Email no encontrado.");
+        return;
+      }
+      const email = cleanEmail(emailStored);
+      if (!email) {
+        console.error("Error", "Email no válido.");
+        return;
+      }
+      const user = await userService.getUserByEmail(email);
+      if (!user?.data.id) {
+        console.error("Error", "No se pudo obtener el usuario.");
+        return;
+      }
       const recipeToSend: CreateRecipe = {
         name: data.name,
         preparation: data.preparation,
-        userId: idUser,
+        userId: user.data.id,
         ingredients: data.ingredients.map((i) => ({
           ingredientId: i.ingredientId,
+          active: i.active,
           quantity: i.quantity,
         })),
       };
@@ -98,6 +120,7 @@ const NewRecipe = () => {
             id: i.ingredientId,
             name: i.name ?? "",
             quantity: i.quantity,
+            active: i.active,
             quantityCalories: i.quantityCalories ?? 0,
           })),
         };
@@ -106,7 +129,7 @@ const NewRecipe = () => {
       } else {
         const created = await recipesService.createRecipe(recipeToSend);
         if (created) {
-          const recipesUpdated = await recipesService.getAllRecipesByUser();
+          const recipesUpdated = await recipesService.getAllRecipesByUser(user.data.id.toString());
           if (recipesUpdated == null) return;
           const newRecipe = recipesUpdated.data[recipesUpdated.data.length - 1];
           addRecipe(newRecipe);
@@ -138,12 +161,13 @@ const NewRecipe = () => {
 
       <FlatList
         data={data.ingredients}
-        keyExtractor={(_, i) => i.toString()}
+        keyExtractor={(item) => item.ingredientId.toString()}
         style={styles.list}
         renderItem={({ item }) => (
           <View style={styles.ingredientRow}>
             <Text style={styles.ingredientName}>{item.name}</Text>
             <Text style={styles.ingredientQty}> {item.quantity}</Text>
+            <Text style={styles.ingredientQty}> {item.active}</Text>
             <Pressable onPress={() => deleteIngredient(item.ingredientId)}>
               <Text style={styles.deleteText}>Eliminar</Text>
             </Pressable>

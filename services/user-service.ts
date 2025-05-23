@@ -1,7 +1,7 @@
 import axios from "axios";
-import { loginInfo, LoginResponse } from "../types/login-info";
+import { loginInfo } from "../types/login-info";
 import { userRegister } from "../types/user-register";
-import asyncStorageService, { getToken } from "./async-storage-service";
+import asyncStorageService from "./async-storage-service";
 import { API_URL } from "../config";
 import { getTokenCleaned } from "../utitlity/utility";
 import { UserApiResponse } from "../types/response-interfase";
@@ -38,7 +38,7 @@ export const registerNewUser = async (data: userRegister) => {
 
 export const registerLogin = async (data: loginInfo) => {
   try {
-    const response = await axios.post<LoginResponse>(
+    const response = await axios.post(
       `${API_URL}api/auth/login`,
       {
         email: data.email,
@@ -47,11 +47,11 @@ export const registerLogin = async (data: loginInfo) => {
     );
 
     if (response.status === 200) {
-      await asyncStorageService.saveUser(
+      await asyncStorageService.saveItemStorage(
         asyncStorageService.KEYS.userToken,
-        response.data.accessToken
+        (response.data as { accessToken: string }).accessToken
       );
-      await asyncStorageService.saveUser(
+      await asyncStorageService.saveItemStorage(
         asyncStorageService.KEYS.userEmail,
         data.email
       );
@@ -66,8 +66,8 @@ export const registerLogin = async (data: loginInfo) => {
 };
 
 export const getUserByEmail = async (email: string) => {
+  const token = await getTokenCleaned();
   try {
-    const token = await getTokenCleaned();
     const response = await axios.get<UserApiResponse>(
       `${API_URL}api/v1/users/by-email`,
       {
@@ -87,11 +87,7 @@ export const getUserByEmail = async (email: string) => {
   }
 };
 
-export const updateUser = async (
-  //Pasar el id por parametro
-  userId: string,
-  updatedUserData: userRegister
-): Promise<number> => {
+export const updateUser = async ( userId: string, updatedUserData: userRegister) => {
   try {
     const bodyToSend = {
       name: updatedUserData.name,
@@ -119,10 +115,10 @@ export const updateUser = async (
       }
     );
 
-    await asyncStorageService.deleteTokenUser(
+    await asyncStorageService.deleteItemStorage(
       asyncStorageService.KEYS.userToken
     );
-    await asyncStorageService.deleteTokenUser(
+    await asyncStorageService.deleteItemStorage(
       asyncStorageService.KEYS.userEmail
     );
 
